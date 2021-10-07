@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lesson3/controller/cloudstorage_controller.dart';
+import 'package:lesson3/controller/firestore_controller.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
@@ -10,8 +12,9 @@ import 'package:lesson3/viewscreen/view/mydialog.dart';
 class AddNewPhotoMemoScreen extends StatefulWidget {
   static const routeName = '/addNewPhotoMemoScreen';
   late final User user;
+  final List<PhotoMemo> photoMemoList;
 
-  AddNewPhotoMemoScreen({required this.user});
+  AddNewPhotoMemoScreen({required this.user, required this.photoMemoList});
 
   @override
   State<StatefulWidget> createState() {
@@ -82,6 +85,14 @@ class _AddNewPhotoMemoState extends State<AddNewPhotoMemoScreen> {
                   ),
                 ],
               ),
+              con.progressMessage == null
+                  ? SizedBox(
+                      height: 1.0,
+                    )
+                  : Text(
+                      con.progressMessage!,
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
               TextFormField(
                 decoration: InputDecoration(hintText: 'Title'),
                 autocorrect: true,
@@ -115,15 +126,60 @@ class _AddNewPhotoMemoState extends State<AddNewPhotoMemoScreen> {
 class _Controller {
   late _AddNewPhotoMemoState state;
   PhotoMemo tempMemo = PhotoMemo();
+  String? progressMessage;
 
   _Controller(this.state);
 
-  void save() {
+  void save() async {
     FormState? currentState = state.formKey.currentState;
     if (currentState == null || !currentState.validate()) return;
     currentState.save();
-    print(
-        '====== tempMemo: ${tempMemo.title} ${tempMemo.memo} ${tempMemo.sharedWith}');
+
+    if (state.photo == null) {
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Photo not selected',
+      );
+      return;
+    }
+
+    MyDialog.circularProgressStart(state.context);
+
+    try {
+      Map photoInfo = await CloudStorageController.uploadPhotoFile(
+        photo: state.photo!,
+        uid: state.widget.user.uid,
+        listener: (progress) {
+          state.render(() {
+            if (progress == 100)
+              progressMessage = null;
+            else
+              progressMessage = 'Uploading $progress %';
+          });
+        },
+      );
+      tempMemo.photoFilename = photoInfo[ARGS.Filename];
+      tempMemo.photoURL = photoInfo[ARGS.DownloadURL];
+      tempMemo.createdBy = state.widget.user.email!;
+      tempMemo.timestamp = DateTime.now();
+
+      String docId = await FirestoreController.addPhotoMemo(photoMemo: tempMemo);
+      tempMemo.docId = docId;
+      state.widget.photoMemoList.insert(0, tempMemo);
+
+      MyDialog.circularProgressStop(state.context);
+      // return to UserHome Screen
+      Navigator.pop(state.context);
+
+    } catch (e) {
+      MyDialog.circularProgressStop(state.context);
+
+      if (Constant.DEV) print('===== Add new photomemo failed: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Add new photomemo failed: $e',
+      );
+    }
   }
 
   void getPhoto(PhotoSource source) async {
@@ -154,6 +210,7 @@ class _Controller {
 
   void saveSharedWith(String? value) {
     if (value != null && value.trim().length != 0) {
+      tempMemo.sharedWith.clear();
       tempMemo.sharedWith.addAll(value.trim().split(RegExp('(,| )+')));
     }
   }
