@@ -34,39 +34,52 @@ class _SignInState extends State<SignInScreen> {
       appBar: AppBar(
         title: Text('Sign In'),
       ),
-      body: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Text(
-                'Sign In, Please!',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Email address',
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Text(
+                  'PhotoMemo',
+                  style: TextStyle(
+                    fontFamily: 'RockSalt',
+                    fontSize: 40.0,
+                  ),
                 ),
-                keyboardType: TextInputType.emailAddress,
-                autocorrect: false,
-                validator: con.validateEmail,
-                onSaved: con.saveEmail,
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Enter password',
+                Text(
+                  'Sign In, Please!',
+                  style: TextStyle(
+                    fontFamily: 'RockSalt',
+                    fontSize: 24.0,
+                  ),
                 ),
-                obscureText: true,
-                autocorrect: false,
-                validator: con.validatePassword,
-                onSaved: con.savePassword,
-              ),
-              ElevatedButton(
-                onPressed: con.signIn,
-                child:
-                    Text('Sign In', style: Theme.of(context).textTheme.button),
-              ),
-            ],
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Email address',
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  validator: con.validateEmail,
+                  onSaved: con.saveEmail,
+                ),
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Enter password',
+                  ),
+                  obscureText: true,
+                  autocorrect: false,
+                  validator: con.validatePassword,
+                  onSaved: con.savePassword,
+                ),
+                ElevatedButton(
+                  onPressed: con.signIn,
+                  child:
+                      Text('Sign In', style: Theme.of(context).textTheme.button),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -133,7 +146,7 @@ class _Controller {
       );
     } catch (e) {
       MyDialog.circularProgressStop(state.context);
-      
+
       if (Constant.DEV) print('=== signIn error: $e');
       MyDialog.showSnackBar(
         context: state.context,

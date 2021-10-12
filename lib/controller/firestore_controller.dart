@@ -22,15 +22,29 @@ class FirestoreController {
         .get();
 
     var result = <PhotoMemo>[];
-    querySnapshot.docs.forEach((doc) { 
+    querySnapshot.docs.forEach((doc) {
       if (doc.data() != null) {
         var document = doc.data() as Map<String, dynamic>;
-        var p = PhotoMemo.fromFirestoreDoc(doc: document, docId: doc.id,);
-        if (p != null) { // filter invalid photomemo doc in Firestore
+        var p = PhotoMemo.fromFirestoreDoc(
+          doc: document,
+          docId: doc.id,
+        );
+        if (p != null) {
+          // filter invalid photomemo doc in Firestore
           result.add(p);
         }
       }
     });
     return result;
+  }
+
+  static Future<void> updatePhotoMemo({
+    required String docId,
+    required Map<String, dynamic> updateInfo,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(docId)
+        .update(updateInfo);
   }
 }
