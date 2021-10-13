@@ -4,7 +4,9 @@ import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
 import 'package:lesson3/viewscreen/detailedview_screen.dart';
 import 'package:lesson3/viewscreen/internalerror_screen.dart';
+import 'package:lesson3/viewscreen/sharedwith_screen.dart';
 import 'package:lesson3/viewscreen/signin_screen.dart';
+import 'package:lesson3/viewscreen/signup_screen.dart';
 import 'package:lesson3/viewscreen/userhome_screen.dart';
 
 void main() async {
@@ -36,6 +38,17 @@ class Lesson3App extends StatelessWidget {
             return UserHomeScreen(user: user, photoMemoList: photoMemoList);
           }
         },
+        SharedWithScreen.routeName: (context) {
+          Object? args = ModalRoute.of(context)?.settings.arguments;
+          if (args == null) {
+            return InternalErrorScreen('args is null at SharedWithScreen');
+          } else {
+            var argument = args as Map;
+            var user = argument[ARGS.USER];
+            var photoMemoList = argument[ARGS.PhotoMemoList];
+            return SharedWithScreen(user: user, photoMemoList: photoMemoList);
+          }
+        },
         AddNewPhotoMemoScreen.routeName: (context) {
           Object? args = ModalRoute.of(context)?.settings.arguments;
           if (args == null) {
@@ -63,7 +76,8 @@ class Lesson3App extends StatelessWidget {
               photoMemo: photoMemo,
             );
           }
-        }
+        },
+        SignUpScreen.routeName: (context) => SignUpScreen(),
       },
     );
   }

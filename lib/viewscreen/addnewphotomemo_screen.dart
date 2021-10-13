@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lesson3/controller/cloudstorage_controller.dart';
 import 'package:lesson3/controller/firestore_controller.dart';
+import 'package:lesson3/controller/googleML_controller.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
@@ -158,6 +159,11 @@ class _Controller {
           });
         },
       );
+
+      // get image labels by ML
+      List<String> recognitions = await GoogleMLController.getImageLabels(photo: state.photo!);
+      tempMemo.imageLabels.addAll(recognitions);
+
       tempMemo.photoFilename = photoInfo[ARGS.Filename];
       tempMemo.photoURL = photoInfo[ARGS.DownloadURL];
       tempMemo.createdBy = state.widget.user.email!;
