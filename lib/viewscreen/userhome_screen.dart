@@ -6,7 +6,9 @@ import 'package:lesson3/controller/firestore_controller.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
+import 'package:lesson3/viewscreen/bio_screen.dart';
 import 'package:lesson3/viewscreen/detailedview_screen.dart';
+import 'package:lesson3/viewscreen/editprofile_screen.dart';
 import 'package:lesson3/viewscreen/sharedwith_screen.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
 import 'package:lesson3/viewscreen/view/webimage.dart';
@@ -93,8 +95,18 @@ class _UserHomeState extends State<UserHomeScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.people),
+                title: Text('Edit Profile'),
+                onTap: con.editProfile,
+              ),
+              ListTile(
+                leading: Icon(Icons.people),
                 title: Text('Shared With'),
                 onTap: con.sharedWith,
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('My Profile'),
+                onTap: con.setting,
               ),
               ListTile(
                 leading: Icon(Icons.exit_to_app),
@@ -161,6 +173,22 @@ class _Controller {
 
   _Controller(this.state) {
     photoMemoList = state.widget.photoMemoList;
+  }
+
+  void editProfile() {
+    Navigator.pushNamed(
+      state.context,
+      EditProfileScreen.routeName,
+      arguments: state.widget.user,
+    );
+  }
+
+  void setting() {
+    Navigator.pushNamed(
+      state.context,
+      BioScreen.routeName,
+      arguments: state.widget.user,
+    );
   }
 
   void sharedWith() async {
