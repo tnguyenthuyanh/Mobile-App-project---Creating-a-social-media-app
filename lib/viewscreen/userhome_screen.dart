@@ -7,8 +7,8 @@ import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
 import 'package:lesson3/viewscreen/bio_screen.dart';
+import 'package:lesson3/viewscreen/changepassword_screen.dart';
 import 'package:lesson3/viewscreen/detailedview_screen.dart';
-import 'package:lesson3/viewscreen/editprofile_screen.dart';
 import 'package:lesson3/viewscreen/sharedwith_screen.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
 import 'package:lesson3/viewscreen/view/webimage.dart';
@@ -16,12 +16,13 @@ import 'package:lesson3/viewscreen/view/webimage.dart';
 class UserHomeScreen extends StatefulWidget {
   static const routeName = '/userHomeScreen';
   final User user;
-  late final String displayName;
   late final String email;
   final List<PhotoMemo> photoMemoList;
 
-  UserHomeScreen({required this.user, required this.photoMemoList}) {
-    displayName = user.displayName ?? 'N/A';
+  UserHomeScreen({
+    required this.user,
+    required this.photoMemoList,
+  }) {
     email = user.email ?? 'no email'; // if email is null print no email
   }
 
@@ -90,7 +91,8 @@ class _UserHomeState extends State<UserHomeScreen> {
           child: ListView(
             children: [
               UserAccountsDrawerHeader(
-                accountName: Text(widget.displayName),
+                accountName: Text('Hello!'),
+                // Text(widget.profile['name'])
                 accountEmail: Text(widget.email),
               ),
               ListTile(
@@ -99,9 +101,14 @@ class _UserHomeState extends State<UserHomeScreen> {
                 onTap: con.sharedWith,
               ),
               ListTile(
-                leading: Icon(Icons.settings),
+                leading: Icon(Icons.account_box_outlined),
                 title: Text('My Profile'),
                 onTap: con.seeProfile,
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Change Password'),
+                onTap: con.changePassword,
               ),
               ListTile(
                 leading: Icon(Icons.exit_to_app),
@@ -170,14 +177,31 @@ class _Controller {
     photoMemoList = state.widget.photoMemoList;
   }
 
+  void changePassword() async {
+    try {
+      await Navigator.pushNamed(
+        state.context,
+        ChangePasswordScreen.routeName,
+        arguments: state.widget.user,
+      );
+      // close the drawer
+      Navigator.of(state.context).pop();
+    } catch (e) {
+      if (Constant.DEV) print('====== ChangePassword error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Failed to get changePassword: $e',
+      );
+    }
+  }
+
   void seeProfile() async {
     try {
       Map profile = await FirestoreController.getBio(user: state.widget.user);
-      await Navigator.pushNamed(state.context, BioScreen.routeName,
-          arguments: {
-            ARGS.Profile: profile,
-            ARGS.USER: state.widget.user,
-          });
+      await Navigator.pushNamed(state.context, BioScreen.routeName, arguments: {
+        ARGS.Profile: profile,
+        ARGS.USER: state.widget.user,
+      });
       // close the drawer
       Navigator.of(state.context).pop();
     } catch (e) {

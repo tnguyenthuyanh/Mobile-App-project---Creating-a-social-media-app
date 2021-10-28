@@ -12,6 +12,14 @@ class FirebaseAuthController {
     await FirebaseAuth.instance.signOut();
   }
 
+  static Future<void> changePassword({required String password}) async {
+    await FirebaseAuth.instance.currentUser!.updatePassword(password);
+  }
+
+  static Future<void> deleteAccount() async {
+    await FirebaseAuth.instance.currentUser!.delete();
+  }
+
   static Future<void> createAccount({
     required String email,
     required String password,

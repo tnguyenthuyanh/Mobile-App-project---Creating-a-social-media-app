@@ -144,10 +144,11 @@ class _Controller {
       }
       user = await FirebaseAuthController.signIn(
           email: email!, password: password!);
-      // print('======= ${user?.email}');
 
       List<PhotoMemo> photoMemoList =
           await FirestoreController.getPhotoMemoList(email: email!);
+      
+      Map profile = await FirestoreController.getBio(user: user!);
 
       MyDialog.circularProgressStop(state.context);
 
@@ -157,6 +158,7 @@ class _Controller {
         arguments: {
           ARGS.USER: user,
           ARGS.PhotoMemoList: photoMemoList,
+          ARGS.Profile: profile,
         },
       );
     } catch (e) {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
 import 'package:lesson3/viewscreen/bio_screen.dart';
+import 'package:lesson3/viewscreen/changepassword_screen.dart';
 import 'package:lesson3/viewscreen/detailedview_screen.dart';
 import 'package:lesson3/viewscreen/editprofile_screen.dart';
 import 'package:lesson3/viewscreen/internalerror_screen.dart';
@@ -30,6 +31,14 @@ class Lesson3App extends StatelessWidget {
       initialRoute: SignInScreen.routeName,
       routes: {
         SignInScreen.routeName: (context) => SignInScreen(),
+        ChangePasswordScreen.routeName: (context) {
+          Object? args = ModalRoute.of(context)?.settings.arguments;
+          if (args == null) {
+            return InternalErrorScreen('args is null at ChangePassword');
+          } else {
+            return ChangePasswordScreen(args as User);
+          }
+        },
         BioScreen.routeName: (context) {
           Object? args = ModalRoute.of(context)?.settings.arguments;
           if (args == null) {
