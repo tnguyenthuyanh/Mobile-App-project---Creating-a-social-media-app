@@ -11,8 +11,9 @@ import 'package:lesson3/viewscreen/view/mydialog.dart';
 class EditProfileScreen extends StatefulWidget {
   static const routeName = '/editProfileScreen';
   final User user;
+  final Map profile;
 
-  EditProfileScreen(this.user);
+  EditProfileScreen({required this.user, required this.profile});
 
   @override
   State<StatefulWidget> createState() {
@@ -23,6 +24,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileState extends State<EditProfileScreen> {
   late _Controller con;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool editMode = false;
 
   @override
   void initState() {
@@ -37,6 +39,14 @@ class _EditProfileState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile'),
+        actions: [
+          editMode
+              ? IconButton(onPressed: con.update, icon: Icon(Icons.check))
+              : IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: con.edit,
+                )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -67,9 +77,11 @@ class _EditProfileState extends State<EditProfileScreen> {
                   decoration: InputDecoration(
                     hintText: 'Name',
                   ),
+                  initialValue: con.orgName,
                   autocorrect: false,
-                  validator: con.validateName,
                   onSaved: con.saveName,
+                  maxLength: 70,
+                  enabled: editMode,
                 ),
                 Text(
                   'Bio',
@@ -81,21 +93,16 @@ class _EditProfileState extends State<EditProfileScreen> {
                   decoration: InputDecoration(
                     hintText: 'Introduce yourself...',
                   ),
+                  initialValue: con.orgBio,
                   autocorrect: false,
-                  validator: con.validateBio,
                   onSaved: con.saveBio,
                   keyboardType: TextInputType.multiline,
-                  maxLines: 6,
+                  maxLines: 7,
+                  maxLength: 200,
+                  enabled: editMode,
                 ),
                 SizedBox(
                   height: 20.0,
-                ),
-                ElevatedButton(
-                  onPressed: con.update,
-                  child: Text(
-                    'Update',
-                    style: Theme.of(context).textTheme.button,
-                  ),
                 ),
               ],
             ),
@@ -108,31 +115,52 @@ class _EditProfileState extends State<EditProfileScreen> {
 
 class _Controller {
   late _EditProfileState state;
-  _Controller(this.state);
-  String? email;
-  String? password;
+  late String orgName;
+  late String orgBio;
 
-  String? validateName(String? value) {
-    if (value == null || !(value.contains('.') && value.contains('@')))
-      return 'Invalid email address';
-    else
-      return null;
+  _Controller(this.state) {
+    orgName = state.widget.profile['name'];
+    orgBio = state.widget.profile['bio'];
   }
+
+  String? name;
+  String? bio;
 
   void saveName(String? value) {
-    if (value != null) email = value;
-  }
-
-  String? validateBio(String? value) {
-    if (value == null || value.length < 6)
-      return 'Invalid password';
-    else
-      return null;
+    if (value != null) name = value;
   }
 
   void saveBio(String? value) {
-    if (value != null) password = value;
+    if (value != null) bio = value;
   }
 
-  void update() {}
+  void edit() async {
+    state.render(() => state.editMode = true);
+  }
+
+  void update() async {
+    FormState? currentState = state.formKey.currentState;
+    if (currentState == null || !currentState.validate()) return;
+    currentState.save();
+
+    MyDialog.circularProgressStart(state.context);
+
+    try {
+      await FirestoreController.addUpdateBio(
+          user: state.widget.user, name: name!, bio: bio!);
+
+      MyDialog.circularProgressStop(state.context);
+      state.render(() => state.editMode = false);
+      Navigator.of(state.context).pop();
+      Navigator.of(state.context).pop();
+
+    } catch (e) {
+      MyDialog.circularProgressStop(state.context);
+      if (Constant.DEV) print('====== update bio error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Update bio error: $e',
+      );
+    }
+  }
 }

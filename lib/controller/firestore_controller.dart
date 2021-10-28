@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 
@@ -93,8 +94,49 @@ class FirestoreController {
         doc: doc.data() as Map<String, dynamic>,
         docId: doc.id,
       );
-      if (p!= null) results.add(p);
+      if (p != null) results.add(p);
     });
     return results;
+  }
+
+  static Future<void> addUpdateBio({
+    required User user,
+    required String name,
+    required String bio,
+  }) async {
+    // check if doc already existed in db
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.BIO_COLLECTION)
+        .where('uid', isEqualTo: user.uid)
+        .get();
+    if (querySnapshot.size == 0) {
+      await FirebaseFirestore.instance
+          .collection(Constant.BIO_COLLECTION)
+          .add(
+              {'email': user.email, 'uid': user.uid, 'name': name, 'bio': bio});
+    }
+    else {
+      await FirebaseFirestore.instance
+        .collection(Constant.BIO_COLLECTION)
+        .doc(querySnapshot.docs[0].id)
+        .update({'name': name, 'bio': bio});
+    }
+  }
+
+  static Future<Map> getBio({
+    required User user,
+  }) async {
+    // check if doc already existed in db
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.BIO_COLLECTION)
+        .where('uid', isEqualTo: user.uid)
+        .get();
+    if (querySnapshot.size == 0) {
+      return {'name': "", 'bio': ""};
+    }
+    else {
+      var i = querySnapshot.docs[0];
+      return {'name': i['name'], 'bio': i['bio']};
+    }
   }
 }

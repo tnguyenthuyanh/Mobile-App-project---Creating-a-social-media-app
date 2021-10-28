@@ -1,11 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lesson3/controller/firestore_controller.dart';
+import 'package:lesson3/model/constant.dart';
+import 'package:lesson3/viewscreen/editprofile_screen.dart';
+import 'package:lesson3/viewscreen/view/mydialog.dart';
 
 class BioScreen extends StatefulWidget {
   static const routeName = '/bioScreen';
   final User user;
+  final Map profile;
 
-  BioScreen(this.user);
+  BioScreen({required this.user, required this.profile});
 
   @override
   State<StatefulWidget> createState() {
@@ -14,11 +19,22 @@ class BioScreen extends StatefulWidget {
 }
 
 class _BioState extends State<BioScreen> {
+  late _Controller con;
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    con = _Controller(this);
+  }
+
+  void render(fn) => setState(fn);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Information'),
+        actions: [IconButton(onPressed: con.edit, icon: Icon(Icons.edit))],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -42,9 +58,18 @@ class _BioState extends State<BioScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '${widget.user.email}',
+                        con.orgName == "" ? "N/A" : con.orgName,
                         style: TextStyle(
                           fontSize: 20.0,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Text(
+                        '${widget.user.email}',
+                        style: TextStyle(
+                          fontSize: 15.0,
                         ),
                       ),
                       SizedBox(
@@ -117,15 +142,16 @@ class _BioState extends State<BioScreen> {
               ),
             ),
             Container(
+              height: MediaQuery.of(context).size.height,
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomLeft,
                       colors: [Colors.white70, Colors.blue])),
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 60.0, horizontal: 16.0),
+                padding: const EdgeInsets.all(20),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -137,12 +163,9 @@ class _BioState extends State<BioScreen> {
                       height: 30.0, // space betwen top or bottom item
                     ),
                     Text(
-                      'Write something here',
+                      con.orgBio,
                       style: Theme.of(context).textTheme.headline6,
                     ),
-                    // SizedBox(
-                    //   height: 20.0,
-                    // ),
                     Divider(
                       color: Colors.yellow,
                       height: 30.0, // space betwen top or bottom item
@@ -155,5 +178,33 @@ class _BioState extends State<BioScreen> {
         ),
       ),
     );
+  }
+}
+
+class _Controller {
+  late _BioState state;
+  late String orgName;
+  late String orgBio;
+
+  _Controller(this.state) {
+    orgName = state.widget.profile['name'];
+    orgBio = state.widget.profile['bio'];
+  }
+
+  void edit() async {
+    try {
+      Map profile = await FirestoreController.getBio(user: state.widget.user);
+      await Navigator.pushNamed(state.context, EditProfileScreen.routeName,
+          arguments: {
+            ARGS.Profile: profile,
+            ARGS.USER: state.widget.user,
+          });
+    } catch (e) {
+      if (Constant.DEV) print('====== editProfile error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Failed to get editProfile: $e',
+      );
+    }
   }
 }

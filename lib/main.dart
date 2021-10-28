@@ -35,7 +35,10 @@ class Lesson3App extends StatelessWidget {
           if (args == null) {
             return InternalErrorScreen('args is null at BioScreen');
           } else {
-            return BioScreen(args as User);
+             var argument = args as Map;
+            var user = argument[ARGS.USER];
+            var profile = argument[ARGS.Profile];
+            return BioScreen(user: user, profile: profile);
           }
         },
         EditProfileScreen.routeName: (context) {
@@ -43,7 +46,10 @@ class Lesson3App extends StatelessWidget {
           if (args == null) {
             return InternalErrorScreen('args is null at EditProfileScreen');
           } else {
-            return EditProfileScreen(args as User);
+            var argument = args as Map;
+            var user = argument[ARGS.USER];
+            var profile = argument[ARGS.Profile];
+            return EditProfileScreen(user: user, profile: profile);
           }
         },
         UserHomeScreen.routeName: (context) {

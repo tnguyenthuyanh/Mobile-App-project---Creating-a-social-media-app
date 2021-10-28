@@ -95,18 +95,13 @@ class _UserHomeState extends State<UserHomeScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.people),
-                title: Text('Edit Profile'),
-                onTap: con.editProfile,
-              ),
-              ListTile(
-                leading: Icon(Icons.people),
                 title: Text('Shared With'),
                 onTap: con.sharedWith,
               ),
               ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('My Profile'),
-                onTap: con.setting,
+                onTap: con.seeProfile,
               ),
               ListTile(
                 leading: Icon(Icons.exit_to_app),
@@ -175,20 +170,23 @@ class _Controller {
     photoMemoList = state.widget.photoMemoList;
   }
 
-  void editProfile() {
-    Navigator.pushNamed(
-      state.context,
-      EditProfileScreen.routeName,
-      arguments: state.widget.user,
-    );
-  }
-
-  void setting() {
-    Navigator.pushNamed(
-      state.context,
-      BioScreen.routeName,
-      arguments: state.widget.user,
-    );
+  void seeProfile() async {
+    try {
+      Map profile = await FirestoreController.getBio(user: state.widget.user);
+      await Navigator.pushNamed(state.context, BioScreen.routeName,
+          arguments: {
+            ARGS.Profile: profile,
+            ARGS.USER: state.widget.user,
+          });
+      // close the drawer
+      Navigator.of(state.context).pop();
+    } catch (e) {
+      if (Constant.DEV) print('====== BioScreen error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Failed to get editProfile: $e',
+      );
+    }
   }
 
   void sharedWith() async {
