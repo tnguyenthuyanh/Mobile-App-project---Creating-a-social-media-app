@@ -17,8 +17,13 @@ class DetailedViewScreen extends StatefulWidget {
 
   final User user;
   final PhotoMemo photoMemo;
+  final bool isPhotoSaved;
 
-  DetailedViewScreen({required this.user, required this.photoMemo});
+  DetailedViewScreen({
+    required this.user,
+    required this.photoMemo,
+    required this.isPhotoSaved,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -141,9 +146,27 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 validator: PhotoMemo.validateSharedWith,
                 onSaved: con.saveSharedWith,
               ),
-              Constant.DEV ? Text(
-                'Image Labels by ML\n${con.tempMemo.imageLabels}'
-              ) : SizedBox(height: 1.0,),
+              Constant.DEV
+                  ? Text('Image Labels by ML\n${con.tempMemo.imageLabels}')
+                  : SizedBox(
+                      height: 1.0,
+                    ),
+              SizedBox(
+                height: 10.0,
+              ),
+              widget.isPhotoSaved
+                  ? ElevatedButton(
+                      onPressed: con.unsaveFavoritePhoto,
+                      style:
+                          ElevatedButton.styleFrom(primary: Colors.purple[700]),
+                      child: Text('Unsave'),
+                    )
+                  : ElevatedButton(
+                      onPressed: con.saveFavoritePhoto,
+                      style:
+                          ElevatedButton.styleFrom(primary: Colors.green[700]),
+                      child: Text('Save'),
+                    ),
             ],
           ),
         ),
@@ -159,6 +182,32 @@ class _Controller {
 
   _Controller(this.state) {
     tempMemo = PhotoMemo.clone(state.widget.photoMemo);
+  }
+
+  void unsaveFavoritePhoto() async {
+    try {
+      await FirestoreController.unsaveFavoritePhoto(
+          photoMemo: tempMemo, currentUser: state.widget.user);
+      Navigator.of(state.context).pop();
+    } catch (e) {
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Failed to unsave picture: $e',
+      );
+    }
+  }
+
+  void saveFavoritePhoto() async {
+    try {
+      await FirestoreController.saveFavoritePhoto(
+          photoMemo: tempMemo, currentUser: state.widget.user);
+      Navigator.of(state.context).pop();
+    } catch (e) {
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Failed to save picture: $e',
+      );
+    }
   }
 
   void getPhoto(PhotoSource source) async {
@@ -199,7 +248,8 @@ class _Controller {
           },
         );
         // generate image labels by ML
-        List<String> recognitions = await GoogleMLController.getImageLabels(photo: photo!);
+        List<String> recognitions =
+            await GoogleMLController.getImageLabels(photo: photo!);
         tempMemo.imageLabels = recognitions;
 
         tempMemo.photoURL = photoInfo[ARGS.DownloadURL];
@@ -228,7 +278,6 @@ class _Controller {
 
       MyDialog.circularProgressStop(state.context);
       state.render(() => state.editMode = false);
-
     } catch (e) {
       MyDialog.circularProgressStop(state.context);
       if (Constant.DEV) print('====== update photomemo error: $e');

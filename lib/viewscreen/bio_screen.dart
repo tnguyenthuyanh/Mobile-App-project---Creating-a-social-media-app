@@ -9,8 +9,9 @@ class BioScreen extends StatefulWidget {
   static const routeName = '/bioScreen';
   final User user;
   final Map profile;
+  final int numberOfPhotos;
 
-  BioScreen({required this.user, required this.profile});
+  BioScreen({required this.user, required this.profile, required this.numberOfPhotos});
 
   @override
   State<StatefulWidget> createState() {
@@ -77,7 +78,7 @@ class _BioState extends State<BioScreen> {
                       ),
                       Card(
                         margin: EdgeInsets.symmetric(
-                            horizontal: 60.0, vertical: 5.0),
+                            horizontal: 110.0, vertical: 5.0),
                         clipBehavior: Clip.antiAlias,
                         color: Colors.green[50],
                         elevation: 7.0,
@@ -100,7 +101,7 @@ class _BioState extends State<BioScreen> {
                                       height: 5.0,
                                     ),
                                     Text(
-                                      "3",
+                                      con.numberOfPhotos.toString(),
                                       style: TextStyle(
                                         fontSize: 20.0,
                                         color: Colors.pinkAccent,
@@ -109,29 +110,29 @@ class _BioState extends State<BioScreen> {
                                   ],
                                 ),
                               ),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      "Followers",
-                                      style: TextStyle(
-                                        color: Colors.orange,
-                                        fontSize: 29.0,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 5.0,
-                                    ),
-                                    Text(
-                                      "15,000",
-                                      style: TextStyle(
-                                        fontSize: 20.0,
-                                        color: Colors.pinkAccent,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
+                              // Expanded(
+                              //   child: Column(
+                              //     children: [
+                              //       Text(
+                              //         "Followers",
+                              //         style: TextStyle(
+                              //           color: Colors.orange,
+                              //           fontSize: 29.0,
+                              //         ),
+                              //       ),
+                              //       SizedBox(
+                              //         height: 5.0,
+                              //       ),
+                              //       Text(
+                              //         "15,000",
+                              //         style: TextStyle(
+                              //           fontSize: 20.0,
+                              //           color: Colors.pinkAccent,
+                              //         ),
+                              //       )
+                              //     ],
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -185,10 +186,12 @@ class _Controller {
   late _BioState state;
   late String orgName;
   late String orgBio;
+  late int numberOfPhotos;
 
   _Controller(this.state) {
     orgName = state.widget.profile['name'];
     orgBio = state.widget.profile['bio'];
+    numberOfPhotos = state.widget.numberOfPhotos;
   }
 
   void edit() async {

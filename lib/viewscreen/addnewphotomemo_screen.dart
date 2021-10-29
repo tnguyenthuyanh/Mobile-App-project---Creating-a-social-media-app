@@ -167,6 +167,7 @@ class _Controller {
       tempMemo.photoFilename = photoInfo[ARGS.Filename];
       tempMemo.photoURL = photoInfo[ARGS.DownloadURL];
       tempMemo.createdBy = state.widget.user.email!;
+      tempMemo.uid = state.widget.user.uid;
       tempMemo.timestamp = DateTime.now();
 
       String docId = await FirestoreController.addPhotoMemo(photoMemo: tempMemo);

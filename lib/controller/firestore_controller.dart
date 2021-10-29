@@ -13,12 +13,84 @@ class FirestoreController {
     return ref.id; // doc id
   }
 
+  static Future<bool> isPhotoSaved({
+    required PhotoMemo photoMemo,
+    required User currentUser,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.FAVORITE_COLLECTION)
+        .where('saved by', isEqualTo: currentUser.uid)
+        .get();
+    for (int i = 0; i < querySnapshot.size; i++)
+      if (querySnapshot.docs[i]['docId'] == photoMemo.docId) return true;
+    return false;
+  }
+
+  static Future<String> saveFavoritePhoto({
+    required PhotoMemo photoMemo,
+    required User currentUser,
+  }) async {
+    DocumentReference ref = await FirebaseFirestore.instance
+        .collection(Constant.FAVORITE_COLLECTION)
+        .add({
+      'saved by': currentUser.uid,
+      'createdByUID': photoMemo.uid,
+      'createdByEmail': photoMemo.createdBy,
+      'docId': photoMemo.docId,
+    });
+    return ref.id; // doc id
+  }
+
+  static Future<void> unsaveFavoritePhoto({
+    required PhotoMemo photoMemo,
+    required User currentUser,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.FAVORITE_COLLECTION)
+        .where('saved by', isEqualTo: currentUser.uid)
+        .get();
+    for (int i = 0; i < querySnapshot.size; i++)
+      if (querySnapshot.docs[i]['docId'] == photoMemo.docId) {
+        String docId = querySnapshot.docs[i].id;
+        await FirebaseFirestore.instance
+            .collection(Constant.FAVORITE_COLLECTION)
+            .doc(docId)
+            .delete();
+      }
+  }
+
+  static Future<List<PhotoMemo>> getFavoriteList({
+    required String uid,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.FAVORITE_COLLECTION)
+        .where('saved by', isEqualTo: uid)
+        .get();
+    var result = <PhotoMemo>[];
+    for (int i = 0; i < querySnapshot.size; i++) {
+        var data = await FirebaseFirestore.instance
+            .collection(Constant.PHOTOMEMO_COLLECTION)
+            .doc(querySnapshot.docs[i]['docId'])
+            .get();
+        var document = data.data() as Map<String, dynamic>;
+        var p = PhotoMemo.fromFirestoreDoc(
+          doc: document,
+          docId: data.id,
+        );
+        if (p != null) {
+          // filter invalid photomemo doc in Firestore
+          result.add(p);
+        }
+      }
+    return result;
+  }
+
   static Future<List<PhotoMemo>> getPhotoMemoList({
-    required String email,
+    required String uid,
   }) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
-        .where(PhotoMemo.CREATED_BY, isEqualTo: email)
+        .where(PhotoMemo.UID, isEqualTo: uid)
         .orderBy(PhotoMemo.TIMESTAMP, descending: true)
         .get();
 
@@ -110,16 +182,13 @@ class FirestoreController {
         .where('uid', isEqualTo: user.uid)
         .get();
     if (querySnapshot.size == 0) {
+      await FirebaseFirestore.instance.collection(Constant.BIO_COLLECTION).add(
+          {'email': user.email, 'uid': user.uid, 'name': name, 'bio': bio});
+    } else {
       await FirebaseFirestore.instance
           .collection(Constant.BIO_COLLECTION)
-          .add(
-              {'email': user.email, 'uid': user.uid, 'name': name, 'bio': bio});
-    }
-    else {
-      await FirebaseFirestore.instance
-        .collection(Constant.BIO_COLLECTION)
-        .doc(querySnapshot.docs[0].id)
-        .update({'name': name, 'bio': bio});
+          .doc(querySnapshot.docs[0].id)
+          .update({'name': name, 'bio': bio});
     }
   }
 
@@ -133,10 +202,19 @@ class FirestoreController {
         .get();
     if (querySnapshot.size == 0) {
       return {'name': "", 'bio': ""};
-    }
-    else {
+    } else {
       var i = querySnapshot.docs[0];
       return {'name': i['name'], 'bio': i['bio']};
     }
+  }
+
+  static Future<int> getNumberOfPhotos({
+    required User user,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .where('uid', isEqualTo: user.uid)
+        .get();
+    return querySnapshot.size;
   }
 }

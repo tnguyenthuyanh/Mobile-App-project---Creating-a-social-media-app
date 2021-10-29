@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lesson3/controller/firestore_controller.dart';
 import 'package:lesson3/model/constant.dart';
-import 'package:lesson3/viewscreen/userhome_screen.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
 
 class EditProfileScreen extends StatefulWidget {

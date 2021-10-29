@@ -5,6 +5,7 @@ enum PhotoSource {
 
 class PhotoMemo {
   // keys for Firestore doc
+  static const UID = 'uid';
   static const TITLE = 'title';
   static const MEMO = 'memo';
   static const CREATED_BY = 'createdby';
@@ -13,9 +14,11 @@ class PhotoMemo {
   static const TIMESTAMP = 'timestamp';
   static const SHARED_WITH = 'sharedwith';
   static const IMAGE_LABELS = 'imagelabels';
+  // static const PUBLIC = 'public';
 
   String? docId; // Firestore auto generated doc Id
-  late String createdBy; // email == user id
+  late String createdBy; // email 
+  late String uid; 
   late String title;
   late String memo;
   late String photoFilename; // at Cloud Storage
@@ -26,6 +29,7 @@ class PhotoMemo {
 
   PhotoMemo({
     this.docId,
+    this.uid = '',
     this.createdBy = '',
     this.title = '',
     this.memo = '',
@@ -41,6 +45,7 @@ class PhotoMemo {
 
   PhotoMemo.clone(PhotoMemo p) {
     this.docId = p.docId;
+    this.uid = p.uid;
     this.createdBy = p.createdBy;
     this.title = p.title;
     this.memo = p.memo;
@@ -54,6 +59,7 @@ class PhotoMemo {
   // a.assign(b) =====> a = b
   void assign(PhotoMemo p) {
     this.docId = p.docId;
+    this.uid = p.uid;
     this.createdBy = p.createdBy;
     this.title = p.title;
     this.memo = p.memo;
@@ -69,6 +75,7 @@ class PhotoMemo {
   Map<String, dynamic> toFirestoreDoc() {
     return {
       TITLE: this.title,
+      UID: this.uid,
       CREATED_BY: this.createdBy,
       MEMO: this.memo,
       PHOTO_FILENAME: this.photoFilename,
@@ -88,6 +95,7 @@ class PhotoMemo {
     }
     return PhotoMemo(
       docId: docId,
+      uid: doc[UID],
       createdBy: doc[CREATED_BY] ??= 'N/A', // if null give a value as 'N/A'
       title: doc[TITLE] ??= 'N/A',
       memo: doc[MEMO] ??= 'N/A',

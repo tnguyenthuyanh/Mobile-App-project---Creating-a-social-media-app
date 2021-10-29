@@ -7,6 +7,7 @@ import 'package:lesson3/viewscreen/bio_screen.dart';
 import 'package:lesson3/viewscreen/changepassword_screen.dart';
 import 'package:lesson3/viewscreen/detailedview_screen.dart';
 import 'package:lesson3/viewscreen/editprofile_screen.dart';
+import 'package:lesson3/viewscreen/favorites_screen.dart';
 import 'package:lesson3/viewscreen/internalerror_screen.dart';
 import 'package:lesson3/viewscreen/sharedwith_screen.dart';
 import 'package:lesson3/viewscreen/signin_screen.dart';
@@ -47,7 +48,8 @@ class Lesson3App extends StatelessWidget {
              var argument = args as Map;
             var user = argument[ARGS.USER];
             var profile = argument[ARGS.Profile];
-            return BioScreen(user: user, profile: profile);
+            var numberOfPhotos = argument[ARGS.NumberOfPhotos];
+            return BioScreen(user: user, profile: profile, numberOfPhotos: numberOfPhotos,);
           }
         },
         EditProfileScreen.routeName: (context) {
@@ -59,6 +61,17 @@ class Lesson3App extends StatelessWidget {
             var user = argument[ARGS.USER];
             var profile = argument[ARGS.Profile];
             return EditProfileScreen(user: user, profile: profile);
+          }
+        },
+        FavoritesScreen.routeName: (context) {
+          Object? args = ModalRoute.of(context)?.settings.arguments;
+          if (args == null) {
+            return InternalErrorScreen('args is null at FavoritesScreen');
+          } else {
+            var argument = args as Map;
+            var user = argument[ARGS.USER];
+            var photoMemoList = argument[ARGS.PhotoMemoList];
+            return FavoritesScreen(user: user, photoMemoList: photoMemoList);
           }
         },
         UserHomeScreen.routeName: (context) {
@@ -105,9 +118,11 @@ class Lesson3App extends StatelessWidget {
             var argument = args as Map;
             var user = argument[ARGS.USER];
             var photoMemo = argument[ARGS.OnePhotoMemo];
+            var isPhotoSaved = argument[ARGS.isPhotoSaved];
             return DetailedViewScreen(
               user: user,
               photoMemo: photoMemo,
+              isPhotoSaved: isPhotoSaved,
             );
           }
         },

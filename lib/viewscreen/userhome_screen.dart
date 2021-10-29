@@ -9,6 +9,7 @@ import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
 import 'package:lesson3/viewscreen/bio_screen.dart';
 import 'package:lesson3/viewscreen/changepassword_screen.dart';
 import 'package:lesson3/viewscreen/detailedview_screen.dart';
+import 'package:lesson3/viewscreen/favorites_screen.dart';
 import 'package:lesson3/viewscreen/sharedwith_screen.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
 import 'package:lesson3/viewscreen/view/webimage.dart';
@@ -101,6 +102,11 @@ class _UserHomeState extends State<UserHomeScreen> {
                 onTap: con.sharedWith,
               ),
               ListTile(
+                leading: Icon(Icons.favorite),
+                title: Text('Favorites'),
+                onTap: con.favorites,
+              ),
+              ListTile(
                 leading: Icon(Icons.account_box_outlined),
                 title: Text('My Profile'),
                 onTap: con.seeProfile,
@@ -177,6 +183,25 @@ class _Controller {
     photoMemoList = state.widget.photoMemoList;
   }
 
+  void favorites() async {
+    try {
+      List<PhotoMemo> photoMemoList = await FirestoreController.getFavoriteList(uid: state.widget.user.uid);
+      await Navigator.pushNamed(state.context, FavoritesScreen.routeName,
+          arguments: {
+            ARGS.PhotoMemoList: photoMemoList,
+            ARGS.USER: state.widget.user,
+          });
+      Navigator.of(state.context).pop(); // close the drawer
+
+    } catch (e) {
+      if (Constant.DEV) print('====== Favorites error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Failed to get Favorite List: $e',
+      );
+    }
+  }
+
   void changePassword() async {
     try {
       await Navigator.pushNamed(
@@ -198,9 +223,12 @@ class _Controller {
   void seeProfile() async {
     try {
       Map profile = await FirestoreController.getBio(user: state.widget.user);
+      int numberOfPhotos =
+          await FirestoreController.getNumberOfPhotos(user: state.widget.user);
       await Navigator.pushNamed(state.context, BioScreen.routeName, arguments: {
         ARGS.Profile: profile,
         ARGS.USER: state.widget.user,
+        ARGS.NumberOfPhotos: numberOfPhotos,
       });
       // close the drawer
       Navigator.of(state.context).pop();
@@ -297,7 +325,7 @@ class _Controller {
       if (keys.isEmpty) {
         // read all photomemos
         results = await FirestoreController.getPhotoMemoList(
-            email: state.widget.email);
+            uid: state.widget.user.uid);
       } else {
         results = await FirestoreController.searchImages(
           createdBy: state.widget.email,
@@ -321,11 +349,14 @@ class _Controller {
       onLongPress(index);
       return;
     }
+    bool isPhotoSaved = await FirestoreController.isPhotoSaved(
+        photoMemo: photoMemoList[index], currentUser: state.widget.user);
 
     await Navigator.pushNamed(state.context, DetailedViewScreen.routeName,
         arguments: {
           ARGS.USER: state.widget.user,
           ARGS.OnePhotoMemo: photoMemoList[index],
+          ARGS.isPhotoSaved: isPhotoSaved,
         });
     // rerender home screen
     state.render(() {
