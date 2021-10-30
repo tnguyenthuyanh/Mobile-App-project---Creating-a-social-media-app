@@ -93,7 +93,7 @@ class _EditProfileState extends State<EditProfileScreen> {
                   autocorrect: false,
                   onSaved: con.saveBio,
                   keyboardType: TextInputType.multiline,
-                  maxLines: 7,
+                  maxLines: 4,
                   maxLength: 200,
                   enabled: editMode,
                 ),

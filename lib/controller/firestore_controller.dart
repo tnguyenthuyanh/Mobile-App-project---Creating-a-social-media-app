@@ -193,18 +193,18 @@ class FirestoreController {
   }
 
   static Future<Map> getBio({
-    required User user,
+    required String uid,
   }) async {
     // check if doc already existed in db
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.BIO_COLLECTION)
-        .where('uid', isEqualTo: user.uid)
+        .where('uid', isEqualTo: uid)
         .get();
     if (querySnapshot.size == 0) {
-      return {'name': "", 'bio': ""};
+      return {'name': "", 'bio': "", 'uid': ""};
     } else {
       var i = querySnapshot.docs[0];
-      return {'name': i['name'], 'bio': i['bio']};
+      return {'name': i['name'], 'bio': i['bio'], "uid": i['uid']};
     }
   }
 

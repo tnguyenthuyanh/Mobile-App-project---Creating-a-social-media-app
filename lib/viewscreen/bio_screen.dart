@@ -11,7 +11,10 @@ class BioScreen extends StatefulWidget {
   final Map profile;
   final int numberOfPhotos;
 
-  BioScreen({required this.user, required this.profile, required this.numberOfPhotos});
+  BioScreen(
+      {required this.user,
+      required this.profile,
+      required this.numberOfPhotos});
 
   @override
   State<StatefulWidget> createState() {
@@ -34,8 +37,10 @@ class _BioState extends State<BioScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Information'),
-        actions: [IconButton(onPressed: con.edit, icon: Icon(Icons.edit))],
+        title: Text('Profile'),
+        actions: widget.profile['uid'] == widget.user.uid
+            ? [IconButton(onPressed: con.edit, icon: Icon(Icons.edit))]
+            : null,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -59,7 +64,9 @@ class _BioState extends State<BioScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        con.orgName == "" ? "N/A" : con.orgName,
+                        widget.profile['name'] == ""
+                            ? "N/A"
+                            : widget.profile['name'],
                         style: TextStyle(
                           fontSize: 20.0,
                         ),
@@ -101,7 +108,7 @@ class _BioState extends State<BioScreen> {
                                       height: 5.0,
                                     ),
                                     Text(
-                                      con.numberOfPhotos.toString(),
+                                      widget.numberOfPhotos.toString(),
                                       style: TextStyle(
                                         fontSize: 20.0,
                                         color: Colors.pinkAccent,
@@ -143,12 +150,15 @@ class _BioState extends State<BioScreen> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height,
+              height: MediaQuery.of(context).size.height * 0.45,
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomLeft,
-                      colors: [Colors.white70, Colors.blue])),
+                      colors: [
+                    Colors.blue,
+                    Colors.orange[200]!,
+                  ])),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -157,14 +167,18 @@ class _BioState extends State<BioScreen> {
                   children: [
                     Text(
                       'Bio:',
-                      style: Theme.of(context).textTheme.headline6,
+                      style: TextStyle(
+                        color: Colors.yellow,
+                        fontSize: 18.0,
+                      ),
                     ),
                     Divider(
                       color: Colors.yellow,
                       height: 30.0, // space betwen top or bottom item
                     ),
                     Text(
-                      con.orgBio,
+                      widget.profile['bio'],
+                      maxLines: 6,
                       style: Theme.of(context).textTheme.headline6,
                     ),
                     Divider(
@@ -184,19 +198,11 @@ class _BioState extends State<BioScreen> {
 
 class _Controller {
   late _BioState state;
-  late String orgName;
-  late String orgBio;
-  late int numberOfPhotos;
-
-  _Controller(this.state) {
-    orgName = state.widget.profile['name'];
-    orgBio = state.widget.profile['bio'];
-    numberOfPhotos = state.widget.numberOfPhotos;
-  }
+  _Controller(this.state);
 
   void edit() async {
     try {
-      Map profile = await FirestoreController.getBio(user: state.widget.user);
+      Map profile = await FirestoreController.getBio(uid: state.widget.user.uid);
       await Navigator.pushNamed(state.context, EditProfileScreen.routeName,
           arguments: {
             ARGS.Profile: profile,

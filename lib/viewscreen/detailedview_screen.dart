@@ -9,6 +9,7 @@ import 'package:lesson3/controller/firestore_controller.dart';
 import 'package:lesson3/controller/googleML_controller.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
+import 'package:lesson3/viewscreen/bio_screen.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
 import 'package:lesson3/viewscreen/view/webimage.dart';
 
@@ -52,14 +53,16 @@ class _DetailedViewState extends State<DetailedViewScreen> {
         title: Text(
           'Detailed View',
         ),
-        actions: [
-          editMode
-              ? IconButton(onPressed: con.update, icon: Icon(Icons.check))
-              : IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: con.edit,
-                )
-        ],
+        actions: widget.user.uid == widget.photoMemo.uid
+            ? [
+                editMode
+                    ? IconButton(onPressed: con.update, icon: Icon(Icons.check))
+                    : IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: con.edit,
+                      )
+              ]
+            : null,
       ),
       body: Form(
         key: formKey,
@@ -109,6 +112,35 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                       progressMessage!,
                       style: Theme.of(context).textTheme.headline6,
                     ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Posted by ',
+                    style: TextStyle(
+                      fontSize: 15.0,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: con.navigate2ProfileScreen,
+                    child: Container(
+                      padding: const EdgeInsets.only(bottom: 1.0),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(width: 2.0, color: Colors.yellow),
+                        ),
+                      ),
+                      child: Text(
+                        widget.photoMemo.createdBy,
+                        style: TextStyle(
+                          color: Colors.yellow,
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               TextFormField(
                 enabled: editMode,
                 style: Theme.of(context).textTheme.headline6,
@@ -154,19 +186,21 @@ class _DetailedViewState extends State<DetailedViewScreen> {
               SizedBox(
                 height: 10.0,
               ),
-              widget.isPhotoSaved
-                  ? ElevatedButton(
-                      onPressed: con.unsaveFavoritePhoto,
-                      style:
-                          ElevatedButton.styleFrom(primary: Colors.purple[700]),
-                      child: Text('Unsave'),
-                    )
-                  : ElevatedButton(
-                      onPressed: con.saveFavoritePhoto,
-                      style:
-                          ElevatedButton.styleFrom(primary: Colors.green[700]),
-                      child: Text('Save'),
-                    ),
+              widget.user.uid == widget.photoMemo.uid
+                  ? widget.isPhotoSaved
+                      ? ElevatedButton(
+                          onPressed: con.unsaveFavoritePhoto,
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.purple[700]),
+                          child: Text('Unsave'),
+                        )
+                      : ElevatedButton(
+                          onPressed: con.saveFavoritePhoto,
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.green[700]),
+                          child: Text('Save'),
+                        )
+                  : SizedBox(),
             ],
           ),
         ),
@@ -182,6 +216,25 @@ class _Controller {
 
   _Controller(this.state) {
     tempMemo = PhotoMemo.clone(state.widget.photoMemo);
+  }
+
+  void navigate2ProfileScreen() async {
+    try {
+      Map profile = await FirestoreController.getBio(uid: tempMemo.uid);
+      int numberOfPhotos =
+          await FirestoreController.getNumberOfPhotos(user: state.widget.user);
+      await Navigator.pushNamed(state.context, BioScreen.routeName, arguments: {
+        ARGS.Profile: profile,
+        ARGS.USER: state.widget.user,
+        ARGS.NumberOfPhotos: numberOfPhotos,
+      });
+    } catch (e) {
+      if (Constant.DEV) print('====== BioScreen error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Failed to get editProfile: $e',
+      );
+    }
   }
 
   void unsaveFavoritePhoto() async {

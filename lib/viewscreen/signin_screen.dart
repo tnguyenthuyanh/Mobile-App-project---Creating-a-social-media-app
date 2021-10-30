@@ -148,7 +148,7 @@ class _Controller {
       List<PhotoMemo> photoMemoList =
           await FirestoreController.getPhotoMemoList(uid: user!.uid);
       
-      Map profile = await FirestoreController.getBio(user: user);
+      Map profile = await FirestoreController.getBio(uid: user.uid);
 
       MyDialog.circularProgressStop(state.context);
 
