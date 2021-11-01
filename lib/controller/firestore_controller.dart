@@ -19,7 +19,7 @@ class FirestoreController {
   }) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.FAVORITE_COLLECTION)
-        .where('saved by', isEqualTo: currentUser.uid)
+        .where('savedBy', isEqualTo: currentUser.uid)
         .get();
     for (int i = 0; i < querySnapshot.size; i++)
       if (querySnapshot.docs[i]['docId'] == photoMemo.docId) return true;
@@ -33,7 +33,7 @@ class FirestoreController {
     DocumentReference ref = await FirebaseFirestore.instance
         .collection(Constant.FAVORITE_COLLECTION)
         .add({
-      'saved by': currentUser.uid,
+      'savedBy': currentUser.uid,
       'createdByUID': photoMemo.uid,
       'createdByEmail': photoMemo.createdBy,
       'docId': photoMemo.docId,
@@ -47,7 +47,7 @@ class FirestoreController {
   }) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.FAVORITE_COLLECTION)
-        .where('saved by', isEqualTo: currentUser.uid)
+        .where('savedBy', isEqualTo: currentUser.uid)
         .get();
     for (int i = 0; i < querySnapshot.size; i++)
       if (querySnapshot.docs[i]['docId'] == photoMemo.docId) {
@@ -64,24 +64,24 @@ class FirestoreController {
   }) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.FAVORITE_COLLECTION)
-        .where('saved by', isEqualTo: uid)
+        .where('savedBy', isEqualTo: uid)
         .get();
     var result = <PhotoMemo>[];
     for (int i = 0; i < querySnapshot.size; i++) {
-        var data = await FirebaseFirestore.instance
-            .collection(Constant.PHOTOMEMO_COLLECTION)
-            .doc(querySnapshot.docs[i]['docId'])
-            .get();
-        var document = data.data() as Map<String, dynamic>;
-        var p = PhotoMemo.fromFirestoreDoc(
-          doc: document,
-          docId: data.id,
-        );
-        if (p != null) {
-          // filter invalid photomemo doc in Firestore
-          result.add(p);
-        }
+      var data = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .doc(querySnapshot.docs[i]['docId'])
+          .get();
+      var document = data.data() as Map<String, dynamic>;
+      var p = PhotoMemo.fromFirestoreDoc(
+        doc: document,
+        docId: data.id,
+      );
+      if (p != null) {
+        // filter invalid photomemo doc in Firestore
+        result.add(p);
       }
+    }
     return result;
   }
 
@@ -176,44 +176,56 @@ class FirestoreController {
     required String name,
     required String bio,
   }) async {
-    // check if doc already existed in db
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.BIO_COLLECTION)
         .where('uid', isEqualTo: user.uid)
         .get();
-    if (querySnapshot.size == 0) {
-      await FirebaseFirestore.instance.collection(Constant.BIO_COLLECTION).add(
-          {'email': user.email, 'uid': user.uid, 'name': name, 'bio': bio});
-    } else {
-      await FirebaseFirestore.instance
-          .collection(Constant.BIO_COLLECTION)
-          .doc(querySnapshot.docs[0].id)
-          .update({'name': name, 'bio': bio});
-    }
+
+    await FirebaseFirestore.instance
+        .collection(Constant.BIO_COLLECTION)
+        .doc(querySnapshot.docs[0].id)
+        .update({'name': name, 'bio': bio});
+  }
+
+  static Future<void> initBio({
+    required User user,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.BIO_COLLECTION)
+        .where('uid', isEqualTo: user.uid)
+        .get();
+    if (querySnapshot.size == 0)
+      await FirebaseFirestore.instance.collection(Constant.BIO_COLLECTION).add({
+        'name': "",
+        'bio': "",
+        'email': user.email,
+        'uid': user.uid,
+      });
   }
 
   static Future<Map> getBio({
     required String uid,
   }) async {
-    // check if doc already existed in db
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.BIO_COLLECTION)
         .where('uid', isEqualTo: uid)
         .get();
-    if (querySnapshot.size == 0) {
-      return {'name': "", 'bio': "", 'uid': ""};
-    } else {
-      var i = querySnapshot.docs[0];
-      return {'name': i['name'], 'bio': i['bio'], "uid": i['uid']};
-    }
+
+    var i = querySnapshot.docs[0];
+    return {
+      'name': i['name'],
+      'bio': i['bio'],
+      'email': i['email'],
+      "uid": i['uid']
+    };
   }
 
   static Future<int> getNumberOfPhotos({
-    required User user,
+    required String uid,
   }) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
-        .where('uid', isEqualTo: user.uid)
+        .where('uid', isEqualTo: uid)
         .get();
     return querySnapshot.size;
   }

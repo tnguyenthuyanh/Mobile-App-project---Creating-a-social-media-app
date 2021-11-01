@@ -186,7 +186,7 @@ class _DetailedViewState extends State<DetailedViewScreen> {
               SizedBox(
                 height: 10.0,
               ),
-              widget.user.uid == widget.photoMemo.uid
+              widget.user.uid == widget.photoMemo.uid && editMode == false
                   ? widget.isPhotoSaved
                       ? ElevatedButton(
                           onPressed: con.unsaveFavoritePhoto,
@@ -222,7 +222,7 @@ class _Controller {
     try {
       Map profile = await FirestoreController.getBio(uid: tempMemo.uid);
       int numberOfPhotos =
-          await FirestoreController.getNumberOfPhotos(user: state.widget.user);
+          await FirestoreController.getNumberOfPhotos(uid: tempMemo.uid);
       await Navigator.pushNamed(state.context, BioScreen.routeName, arguments: {
         ARGS.Profile: profile,
         ARGS.USER: state.widget.user,
@@ -232,7 +232,7 @@ class _Controller {
       if (Constant.DEV) print('====== BioScreen error: $e');
       MyDialog.showSnackBar(
         context: state.context,
-        message: 'Failed to get editProfile: $e',
+        message: 'Failed to get BioScreen: $e',
       );
     }
   }

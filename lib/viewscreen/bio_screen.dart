@@ -75,7 +75,7 @@ class _BioState extends State<BioScreen> {
                         height: 10.0,
                       ),
                       Text(
-                        '${widget.user.email}',
+                         widget.profile['email'],
                         style: TextStyle(
                           fontSize: 15.0,
                         ),

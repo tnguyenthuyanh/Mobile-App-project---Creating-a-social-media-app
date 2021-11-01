@@ -224,7 +224,7 @@ class _Controller {
     try {
       Map profile = await FirestoreController.getBio(uid: state.widget.user.uid);
       int numberOfPhotos =
-          await FirestoreController.getNumberOfPhotos(user: state.widget.user);
+          await FirestoreController.getNumberOfPhotos(uid: state.widget.user.uid);
       await Navigator.pushNamed(state.context, BioScreen.routeName, arguments: {
         ARGS.Profile: profile,
         ARGS.USER: state.widget.user,
