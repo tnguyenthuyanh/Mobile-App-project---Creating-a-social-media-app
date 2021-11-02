@@ -205,50 +205,65 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                           child: Text('Save'),
                         )
                   : SizedBox(),
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    'Comments',
-                    style: TextStyle(
-                      color: Colors.deepOrange,
-                      fontSize: 18.0,
-                    ),
-                  ),
-                ),
-              ),
               Divider(
                 color: Colors.blue,
-                height: 30.0, // space betwen top or bottom item
+                height: 20.0, // space betwen top or bottom item
               ),
-              TextFormField(
-                controller: textController,
-                decoration: InputDecoration(
-                  hintText: 'Write a comment...',
-                  filled: true,
-                  fillColor: Colors.white12,
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 2.0),
-                    borderRadius: BorderRadius.circular(25.0),
-                  ),
-                ),
-                autocorrect: false,
-                onSaved: con.saveComment,
-                keyboardType: TextInputType.multiline,
-                maxLines: 4,
-                maxLength: 200,
-                validator: Comment.validateComment,
-                enabled: true,
-              ),
-              Align(
-                alignment: Alignment.topRight,
+              Container(
+                width: 200.0,
                 child: ElevatedButton(
-                  onPressed: con.post,
-                  style: ElevatedButton.styleFrom(primary: Colors.blue[700]),
-                  child: Text('Post'),
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                          side: BorderSide(color: Colors.orange)),
+                    ),
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white30),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'View Comments',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 18.0,
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      Icon(Icons.comment),
+                    ],
+                  ),
+                  onPressed: () {},
                 ),
               ),
+              // TextFormField(
+              //   controller: textController,
+              //   decoration: InputDecoration(
+              //     hintText: 'Write a comment...',
+              //     filled: true,
+              //     fillColor: Colors.white12,
+              //     focusedBorder: OutlineInputBorder(
+              //       borderSide: BorderSide(color: Colors.white, width: 2.0),
+              //       borderRadius: BorderRadius.circular(25.0),
+              //     ),
+              //   ),
+              //   autocorrect: false,
+              //   onSaved: con.saveComment,
+              //   keyboardType: TextInputType.multiline,
+              //   maxLines: 4,
+              //   maxLength: 200,
+              //   validator: Comment.validateComment,
+              //   enabled: true,
+              // ),
+              // Align(
+              //   alignment: Alignment.topRight,
+              //   child: ElevatedButton(
+              //     onPressed: con.post,
+              //     style: ElevatedButton.styleFrom(primary: Colors.blue[700]),
+              //     child: Text('Post'),
+              //   ),
+              // ),
               // con.commentList.isEmpty
               //     ? Text(
               //         'No Comment Yet',
