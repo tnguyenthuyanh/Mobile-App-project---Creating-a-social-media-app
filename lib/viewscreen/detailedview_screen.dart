@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lesson3/controller/cloudstorage_controller.dart';
 import 'package:lesson3/controller/firestore_controller.dart';
 import 'package:lesson3/controller/googleML_controller.dart';
+import 'package:lesson3/model/comment.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 import 'package:lesson3/viewscreen/bio_screen.dart';
@@ -19,11 +20,13 @@ class DetailedViewScreen extends StatefulWidget {
   final User user;
   final PhotoMemo photoMemo;
   final bool isPhotoSaved;
+  final List<Comment> commentList;
 
   DetailedViewScreen({
     required this.user,
     required this.photoMemo,
     required this.isPhotoSaved,
+    required this.commentList,
   });
 
   @override
@@ -35,6 +38,7 @@ class DetailedViewScreen extends StatefulWidget {
 class _DetailedViewState extends State<DetailedViewScreen> {
   late _Controller con;
   bool editMode = false;
+  final textController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? progressMessage;
 
@@ -201,6 +205,80 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                           child: Text('Save'),
                         )
                   : SizedBox(),
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Comments',
+                    style: TextStyle(
+                      color: Colors.deepOrange,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
+              ),
+              Divider(
+                color: Colors.blue,
+                height: 30.0, // space betwen top or bottom item
+              ),
+              TextFormField(
+                controller: textController,
+                decoration: InputDecoration(
+                  hintText: 'Write a comment...',
+                  filled: true,
+                  fillColor: Colors.white12,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white, width: 2.0),
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                ),
+                autocorrect: false,
+                onSaved: con.saveComment,
+                keyboardType: TextInputType.multiline,
+                maxLines: 4,
+                maxLength: 200,
+                validator: Comment.validateComment,
+                enabled: true,
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: ElevatedButton(
+                  onPressed: con.post,
+                  style: ElevatedButton.styleFrom(primary: Colors.blue[700]),
+                  child: Text('Post'),
+                ),
+              ),
+              // con.commentList.isEmpty
+              //     ? Text(
+              //         'No Comment Yet',
+              //         style: Theme.of(context).textTheme.headline6,
+              //       )
+              //     : ListView.builder(
+              //         itemCount: con.commentList.length,
+              //         itemBuilder: (context, index) {
+              //           return Container(
+              //             child: Text('hehe'),
+              //             // child: TextFormField(
+              //             //   controller: textController,
+              //             //   decoration: InputDecoration(
+              //             //     filled: true,
+              //             //     fillColor: Colors.white10,
+              //             //     focusedBorder: OutlineInputBorder(
+              //             //       borderSide:
+              //             //           BorderSide(color: Colors.white, width: 2.0),
+              //             //       borderRadius: BorderRadius.circular(25.0),
+              //             //     ),
+              //             //   ),
+              //             //   initialValue: con.commentList[index].content,
+              //             //   autocorrect: false,
+              //             //   keyboardType: TextInputType.multiline,
+              //             //   maxLines: 4,
+              //             //   maxLength: 200,
+              //             //   enabled: false,
+              //             // ),
+              //           );
+              //         }),
             ],
           ),
         ),
@@ -212,10 +290,42 @@ class _DetailedViewState extends State<DetailedViewScreen> {
 class _Controller {
   late _DetailedViewState state;
   late PhotoMemo tempMemo;
+  late Comment comment = Comment();
+  late List<Comment> commentList;
   File? photo;
 
   _Controller(this.state) {
     tempMemo = PhotoMemo.clone(state.widget.photoMemo);
+    commentList = state.widget.commentList;
+  }
+
+  void post() async {
+    FormState? currentState = state.formKey.currentState;
+    if (currentState == null || !currentState.validate()) return;
+    currentState.save();
+
+    try {
+      comment.commentedBy = state.widget.user.email!;
+      comment.uid = state.widget.user.uid;
+      comment.photoId = tempMemo.docId!;
+      comment.timestamp = DateTime.now();
+
+      String docId = await FirestoreController.addComment(comment: comment);
+      comment.docId = docId;
+      //state.widget.photoMemoList.insert(0, tempMemo);
+      state.textController.clear();
+    } catch (e) {
+      MyDialog.circularProgressStop(state.context);
+      if (Constant.DEV) print('====== add comment error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Add Comment error: $e',
+      );
+    }
+  }
+
+  void saveComment(String? value) {
+    if (value != null) comment.content = value;
   }
 
   void navigate2ProfileScreen() async {

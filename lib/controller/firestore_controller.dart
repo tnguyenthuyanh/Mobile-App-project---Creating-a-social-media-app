@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:lesson3/model/comment.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 
@@ -228,5 +229,39 @@ class FirestoreController {
         .where('uid', isEqualTo: uid)
         .get();
     return querySnapshot.size;
+  }
+
+  static Future<String> addComment({
+    required Comment comment,
+  }) async {
+    DocumentReference ref = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_COLLECTION)
+        .add(comment.toFirestoreDoc());
+    return ref.id; // doc id
+  }
+
+   static Future<List<Comment>> getCommentList({
+    required String photoId,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_COLLECTION)
+        .where(Comment.PHOTO_ID, isEqualTo: photoId)
+        .orderBy(Comment.TIMESTAMP, descending: true)
+        .get();
+
+    var result = <Comment>[];
+    querySnapshot.docs.forEach((doc) {
+      if (doc.data() != null) {
+        var document = doc.data() as Map<String, dynamic>;
+        var p = Comment.fromFirestoreDoc(
+          doc: document,
+          docId: doc.id,
+        );
+        if (p != null) {
+          result.add(p);
+        }
+      }
+    });
+    return result;
   }
 }

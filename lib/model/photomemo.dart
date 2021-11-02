@@ -14,7 +14,6 @@ class PhotoMemo {
   static const TIMESTAMP = 'timestamp';
   static const SHARED_WITH = 'sharedwith';
   static const IMAGE_LABELS = 'imagelabels';
-  // static const PUBLIC = 'public';
 
   String? docId; // Firestore auto generated doc Id
   late String createdBy; // email 

@@ -5,7 +5,7 @@ class Constant {
   static const PHOTOMEMO_COLLECTION = 'photomemo_collection';
   static const BIO_COLLECTION = 'bio_collection';
   static const FAVORITE_COLLECTION = 'favorite_collection';
-
+  static const COMMENT_COLLECTION = 'comment_collection';
 }
 
 enum ARGS {
@@ -17,4 +17,5 @@ enum ARGS {
   Profile,
   NumberOfPhotos,
   isPhotoSaved,
+  commentList,
 }

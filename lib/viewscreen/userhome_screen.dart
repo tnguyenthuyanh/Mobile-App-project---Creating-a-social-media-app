@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lesson3/controller/cloudstorage_controller.dart';
 import 'package:lesson3/controller/firebaseauth_controller.dart';
 import 'package:lesson3/controller/firestore_controller.dart';
+import 'package:lesson3/model/comment.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
@@ -185,7 +186,8 @@ class _Controller {
 
   void favorites() async {
     try {
-      List<PhotoMemo> photoMemoList = await FirestoreController.getFavoriteList(uid: state.widget.user.uid);
+      List<PhotoMemo> photoMemoList =
+          await FirestoreController.getFavoriteList(uid: state.widget.user.uid);
       await Navigator.pushNamed(state.context, FavoritesScreen.routeName,
           arguments: {
             ARGS.PhotoMemoList: photoMemoList,
@@ -222,9 +224,10 @@ class _Controller {
 
   void seeProfile() async {
     try {
-      Map profile = await FirestoreController.getBio(uid: state.widget.user.uid);
-      int numberOfPhotos =
-          await FirestoreController.getNumberOfPhotos(uid: state.widget.user.uid);
+      Map profile =
+          await FirestoreController.getBio(uid: state.widget.user.uid);
+      int numberOfPhotos = await FirestoreController.getNumberOfPhotos(
+          uid: state.widget.user.uid);
       await Navigator.pushNamed(state.context, BioScreen.routeName, arguments: {
         ARGS.Profile: profile,
         ARGS.USER: state.widget.user,
@@ -351,12 +354,16 @@ class _Controller {
     }
     bool isPhotoSaved = await FirestoreController.isPhotoSaved(
         photoMemo: photoMemoList[index], currentUser: state.widget.user);
+        
+    List<Comment> commentList = await FirestoreController.getCommentList(
+        photoId: photoMemoList[index].docId!);
 
     await Navigator.pushNamed(state.context, DetailedViewScreen.routeName,
         arguments: {
           ARGS.USER: state.widget.user,
           ARGS.OnePhotoMemo: photoMemoList[index],
           ARGS.isPhotoSaved: isPhotoSaved,
+          ARGS.commentList: commentList,
         });
     // rerender home screen
     state.render(() {

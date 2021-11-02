@@ -119,10 +119,12 @@ class Lesson3App extends StatelessWidget {
             var user = argument[ARGS.USER];
             var photoMemo = argument[ARGS.OnePhotoMemo];
             var isPhotoSaved = argument[ARGS.isPhotoSaved];
+            var commentList = argument[ARGS.commentList];
             return DetailedViewScreen(
               user: user,
               photoMemo: photoMemo,
               isPhotoSaved: isPhotoSaved,
+              commentList: commentList,
             );
           }
         },
