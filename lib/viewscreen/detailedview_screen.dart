@@ -11,6 +11,7 @@ import 'package:lesson3/model/comment.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
 import 'package:lesson3/viewscreen/bio_screen.dart';
+import 'package:lesson3/viewscreen/comment_screen.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
 import 'package:lesson3/viewscreen/view/webimage.dart';
 
@@ -20,13 +21,11 @@ class DetailedViewScreen extends StatefulWidget {
   final User user;
   final PhotoMemo photoMemo;
   final bool isPhotoSaved;
-  final List<Comment> commentList;
 
   DetailedViewScreen({
     required this.user,
     required this.photoMemo,
     required this.isPhotoSaved,
-    required this.commentList,
   });
 
   @override
@@ -38,7 +37,6 @@ class DetailedViewScreen extends StatefulWidget {
 class _DetailedViewState extends State<DetailedViewScreen> {
   late _Controller con;
   bool editMode = false;
-  final textController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? progressMessage;
 
@@ -230,70 +228,15 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                           fontSize: 18.0,
                         ),
                       ),
-                      SizedBox(width: 10,),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Icon(Icons.comment),
                     ],
                   ),
-                  onPressed: () {},
+                  onPressed: con.navigate2CommentScreen,
                 ),
               ),
-              // TextFormField(
-              //   controller: textController,
-              //   decoration: InputDecoration(
-              //     hintText: 'Write a comment...',
-              //     filled: true,
-              //     fillColor: Colors.white12,
-              //     focusedBorder: OutlineInputBorder(
-              //       borderSide: BorderSide(color: Colors.white, width: 2.0),
-              //       borderRadius: BorderRadius.circular(25.0),
-              //     ),
-              //   ),
-              //   autocorrect: false,
-              //   onSaved: con.saveComment,
-              //   keyboardType: TextInputType.multiline,
-              //   maxLines: 4,
-              //   maxLength: 200,
-              //   validator: Comment.validateComment,
-              //   enabled: true,
-              // ),
-              // Align(
-              //   alignment: Alignment.topRight,
-              //   child: ElevatedButton(
-              //     onPressed: con.post,
-              //     style: ElevatedButton.styleFrom(primary: Colors.blue[700]),
-              //     child: Text('Post'),
-              //   ),
-              // ),
-              // con.commentList.isEmpty
-              //     ? Text(
-              //         'No Comment Yet',
-              //         style: Theme.of(context).textTheme.headline6,
-              //       )
-              //     : ListView.builder(
-              //         itemCount: con.commentList.length,
-              //         itemBuilder: (context, index) {
-              //           return Container(
-              //             child: Text('hehe'),
-              //             // child: TextFormField(
-              //             //   controller: textController,
-              //             //   decoration: InputDecoration(
-              //             //     filled: true,
-              //             //     fillColor: Colors.white10,
-              //             //     focusedBorder: OutlineInputBorder(
-              //             //       borderSide:
-              //             //           BorderSide(color: Colors.white, width: 2.0),
-              //             //       borderRadius: BorderRadius.circular(25.0),
-              //             //     ),
-              //             //   ),
-              //             //   initialValue: con.commentList[index].content,
-              //             //   autocorrect: false,
-              //             //   keyboardType: TextInputType.multiline,
-              //             //   maxLines: 4,
-              //             //   maxLength: 200,
-              //             //   enabled: false,
-              //             // ),
-              //           );
-              //         }),
             ],
           ),
         ),
@@ -305,43 +248,24 @@ class _DetailedViewState extends State<DetailedViewScreen> {
 class _Controller {
   late _DetailedViewState state;
   late PhotoMemo tempMemo;
-  late Comment comment = Comment();
-  late List<Comment> commentList;
   File? photo;
 
   _Controller(this.state) {
     tempMemo = PhotoMemo.clone(state.widget.photoMemo);
-    commentList = state.widget.commentList;
   }
 
-  void post() async {
-    FormState? currentState = state.formKey.currentState;
-    if (currentState == null || !currentState.validate()) return;
-    currentState.save();
+  void navigate2CommentScreen() async {
+    List<Comment> commentList =
+        await FirestoreController.getCommentList(photoId: tempMemo.docId!);
 
-    try {
-      comment.commentedBy = state.widget.user.email!;
-      comment.uid = state.widget.user.uid;
-      comment.photoId = tempMemo.docId!;
-      comment.timestamp = DateTime.now();
-
-      String docId = await FirestoreController.addComment(comment: comment);
-      comment.docId = docId;
-      //state.widget.photoMemoList.insert(0, tempMemo);
-      state.textController.clear();
-    } catch (e) {
-      MyDialog.circularProgressStop(state.context);
-      if (Constant.DEV) print('====== add comment error: $e');
-      MyDialog.showSnackBar(
-        context: state.context,
-        message: 'Add Comment error: $e',
-      );
-    }
+    await Navigator.pushNamed(state.context, CommentScreen.routeName,
+        arguments: {
+          ARGS.USER: state.widget.user,
+          ARGS.OnePhotoMemo: tempMemo,
+          ARGS.commentList: commentList,
+        });
   }
 
-  void saveComment(String? value) {
-    if (value != null) comment.content = value;
-  }
 
   void navigate2ProfileScreen() async {
     try {

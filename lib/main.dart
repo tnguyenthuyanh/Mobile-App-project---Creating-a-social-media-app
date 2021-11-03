@@ -5,6 +5,7 @@ import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
 import 'package:lesson3/viewscreen/bio_screen.dart';
 import 'package:lesson3/viewscreen/changepassword_screen.dart';
+import 'package:lesson3/viewscreen/comment_screen.dart';
 import 'package:lesson3/viewscreen/detailedview_screen.dart';
 import 'package:lesson3/viewscreen/editprofile_screen.dart';
 import 'package:lesson3/viewscreen/favorites_screen.dart';
@@ -74,6 +75,22 @@ class Lesson3App extends StatelessWidget {
             return FavoritesScreen(user: user, photoMemoList: photoMemoList);
           }
         },
+        CommentScreen.routeName: (context) {
+          Object? args = ModalRoute.of(context)?.settings.arguments;
+          if (args == null) {
+            return InternalErrorScreen('args is null at CommentScreen');
+          } else {
+            var argument = args as Map;
+            var user = argument[ARGS.USER];
+            var photoMemo = argument[ARGS.OnePhotoMemo];
+            var commentList = argument[ARGS.commentList];
+            return CommentScreen(
+              user: user,
+              photoMemo: photoMemo,
+              commentList: commentList,
+            );
+          }
+        },
         UserHomeScreen.routeName: (context) {
           Object? args = ModalRoute.of(context)?.settings.arguments;
           if (args == null) {
@@ -119,12 +136,10 @@ class Lesson3App extends StatelessWidget {
             var user = argument[ARGS.USER];
             var photoMemo = argument[ARGS.OnePhotoMemo];
             var isPhotoSaved = argument[ARGS.isPhotoSaved];
-            var commentList = argument[ARGS.commentList];
             return DetailedViewScreen(
               user: user,
               photoMemo: photoMemo,
               isPhotoSaved: isPhotoSaved,
-              commentList: commentList,
             );
           }
         },
