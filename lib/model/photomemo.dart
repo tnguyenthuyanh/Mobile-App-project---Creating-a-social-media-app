@@ -14,6 +14,7 @@ class PhotoMemo {
   static const TIMESTAMP = 'timestamp';
   static const SHARED_WITH = 'sharedwith';
   static const IMAGE_LABELS = 'imagelabels';
+  static const NEW_COMMENTS = 'new_comments';
 
   String? docId; // Firestore auto generated doc Id
   late String createdBy; // email 
@@ -22,6 +23,7 @@ class PhotoMemo {
   late String memo;
   late String photoFilename; // at Cloud Storage
   late String photoURL;
+  late int new_comments;
   DateTime? timestamp;
   late List<dynamic> sharedWith; // list of emails
   late List<dynamic> imageLabels; // ML image labels
@@ -34,6 +36,7 @@ class PhotoMemo {
     this.memo = '',
     this.photoFilename = '',
     this.photoURL = '',
+    this.new_comments = 0,
     this.timestamp,
     List<dynamic>? sharedWith,
     List<dynamic>? imageLabels,
@@ -50,6 +53,7 @@ class PhotoMemo {
     this.memo = p.memo;
     this.photoFilename = p.photoFilename;
     this.photoURL = p.photoURL;
+    this.new_comments = p.new_comments;
     this.timestamp = p.timestamp;
     this.sharedWith = [...p.sharedWith];
     this.imageLabels = [...p.imageLabels];
@@ -64,6 +68,7 @@ class PhotoMemo {
     this.memo = p.memo;
     this.photoFilename = p.photoFilename;
     this.photoURL = p.photoURL;
+    this.new_comments = p.new_comments;
     this.timestamp = p.timestamp;
     this.sharedWith.clear();
     this.sharedWith.addAll(p.sharedWith);
@@ -79,6 +84,7 @@ class PhotoMemo {
       MEMO: this.memo,
       PHOTO_FILENAME: this.photoFilename,
       PHOTO_URL: this.photoURL,
+      NEW_COMMENTS: this.new_comments,
       TIMESTAMP: this.timestamp,
       SHARED_WITH: this.sharedWith,
       IMAGE_LABELS: this.imageLabels,
@@ -100,6 +106,7 @@ class PhotoMemo {
       memo: doc[MEMO] ??= 'N/A',
       photoFilename: doc[PHOTO_FILENAME] ??= 'N/A',
       photoURL: doc[PHOTO_URL] ??= 'N/A',
+      new_comments: doc[NEW_COMMENTS],
       sharedWith: doc[SHARED_WITH] ??= [],
       imageLabels: doc[IMAGE_LABELS] ??= [],
       timestamp: doc[TIMESTAMP] != null  

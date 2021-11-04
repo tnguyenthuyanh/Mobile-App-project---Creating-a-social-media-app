@@ -89,6 +89,7 @@ class FirestoreController {
   static Future<List<PhotoMemo>> getPhotoMemoList({
     required String uid,
   }) async {
+    // update number of new comments first
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
         .where(PhotoMemo.UID, isEqualTo: uid)
@@ -96,7 +97,23 @@ class FirestoreController {
         .get();
 
     var result = <PhotoMemo>[];
-    querySnapshot.docs.forEach((doc) {
+    for (int i = 0; i < querySnapshot.size; i++) {
+      if (querySnapshot.docs[i].data() != null) {
+        int numOfNewComments =
+            await getNewComments(photoId: querySnapshot.docs[i].id);
+        await updateNewComments(
+            photoId: querySnapshot.docs[i].id, number: numOfNewComments);
+      }
+    }
+
+    // get updated list
+    QuerySnapshot querySnapshot1 = await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .where(PhotoMemo.UID, isEqualTo: uid)
+        .orderBy(PhotoMemo.TIMESTAMP, descending: true)
+        .get();
+
+    querySnapshot1.docs.forEach((doc) {
       if (doc.data() != null) {
         var document = doc.data() as Map<String, dynamic>;
         var p = PhotoMemo.fromFirestoreDoc(
@@ -240,7 +257,7 @@ class FirestoreController {
     return ref.id; // doc id
   }
 
-   static Future<List<Comment>> getCommentList({
+  static Future<List<Comment>> getCommentList({
     required String photoId,
   }) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -263,5 +280,54 @@ class FirestoreController {
       }
     });
     return result;
+  }
+
+  static Future<int> getNewComments({
+    required String photoId,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_COLLECTION)
+        .where(Comment.PHOTO_ID, isEqualTo: photoId)
+        .orderBy(Comment.TIMESTAMP, descending: true)
+        .get();
+
+    int count = 0;
+    for (int i = 0; i < querySnapshot.size; i++) {
+      if (querySnapshot.docs[i][Comment.SEEN] == 0) count++;
+    }
+    return count;
+  }
+
+  static Future<void> updateNewComments({
+    required String photoId,
+    required int number,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(photoId)
+        .update({PhotoMemo.NEW_COMMENTS: number});
+  }
+
+  static Future<void> updateSeenEachComment({
+    required String photoId,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_COLLECTION)
+        .where(Comment.PHOTO_ID, isEqualTo: photoId)
+        .orderBy(Comment.TIMESTAMP, descending: true)
+        .get();
+
+    for (int i = 0; i < querySnapshot.size; i++) {
+      if (querySnapshot.docs[i][Comment.SEEN] == 0)
+        await FirebaseFirestore.instance
+            .collection(Constant.COMMENT_COLLECTION)
+            .doc(querySnapshot.docs[i].id)
+            .update({Comment.SEEN: 1});
+    }
+    await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .doc(photoId)
+        .update({PhotoMemo.NEW_COMMENTS: 0});
+
   }
 }

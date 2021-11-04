@@ -150,7 +150,6 @@ class _Controller {
           
       await FirestoreController.initBio(user: user);
       Map profile = await FirestoreController.getBio(uid: user.uid);
-
       MyDialog.circularProgressStop(state.context);
 
       Navigator.pushNamed(

@@ -29,10 +29,14 @@ class _CommentState extends State<CommentScreen> {
   GlobalKey<FormState> formKey = GlobalKey();
   final textController = TextEditingController();
 
+  List<TextEditingController> editController = [];
+
   @override
   void initState() {
     super.initState();
     con = _Controller(this);
+    for (int i = 0; i < con.commentList.length; i++)
+      editController.add(TextEditingController(text: con.commentList[i].content));
   }
 
   void render(fn) => setState(fn);
@@ -103,22 +107,24 @@ class _CommentState extends State<CommentScreen> {
               : Expanded(
                   child: ListView.builder(
                       itemCount: con.commentList.length,
-                      itemBuilder: (context, index)  {
+                      itemBuilder: (context, index) {
                         return Container(
                           child: Column(
                             children: [
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                                 child: TextFormField(
+                                  controller: editController[index],
                                   decoration: InputDecoration(
                                     filled: true,
-                                    fillColor:
-                                        Colors.green[200]!.withOpacity(0.4),
+                                    fillColor: con.commentList[index].seen == 0
+                                        ? Colors.purple[200]!.withOpacity(0.4)
+                                        : Colors.green[200]!.withOpacity(0.4),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(20.0),
                                     ),
                                   ),
-                                  initialValue: con.commentList[index].content,
+                                  // initialValue: con.commentList[index].content,
                                   autocorrect: false,
                                   keyboardType: TextInputType.multiline,
                                   maxLines: 4,
@@ -126,19 +132,48 @@ class _CommentState extends State<CommentScreen> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(10, 2, 0, 0),
-                                child: Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    '${con.commentList[index].commentedBy}',
-                                    style:
-                                        TextStyle(fontStyle: FontStyle.italic),
-                                  ),
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 2, 10, 0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${con.commentList[index].commentedBy}',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                    Text(
+                                      '${con.commentList[index].timestamp}',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ],
                                 ),
                               ),
                               SizedBox(
                                 height: 14,
                               ),
+                              // ElevatedButton(
+                              //   onPressed: con.edit,
+                              //   style: ButtonStyle(
+                              //     backgroundColor:
+                              //         MaterialStateProperty.all<Color>(
+                              //             Colors.green.withOpacity(0.3)),
+                              //     foregroundColor:
+                              //         MaterialStateProperty.all<Color>(
+                              //             Colors.lightGreen),
+                              //     shape: MaterialStateProperty.all<
+                              //         RoundedRectangleBorder>(
+                              //       RoundedRectangleBorder(
+                              //         borderRadius: BorderRadius.circular(20),
+                              //         side: BorderSide(
+                              //             color: Colors.green, width: 2.5),
+                              //       ),
+                              //     ),
+                              //   ),
+                              //   child: Text('Edit'),
+                              // ),
                             ],
                           ),
                         );
@@ -161,6 +196,10 @@ class _Controller {
     photoMemo = state.widget.photoMemo;
   }
 
+  void edit() {
+    //state.editController[index].enb
+  }
+
   void post() async {
     FormState? currentState = state.formKey.currentState;
     if (currentState == null || !currentState.validate()) return;
@@ -171,13 +210,24 @@ class _Controller {
       comment.uid = state.widget.user.uid;
       comment.photoId = photoMemo.docId!;
       comment.timestamp = DateTime.now();
+      if (photoMemo.uid == state.widget.user.uid)
+        comment.seen = 1;
+      else
+        comment.seen = 0;
+      print(comment.content);
       String docId = await FirestoreController.addComment(comment: comment);
       comment.docId = docId;
       state.textController.clear();
 
-      state.render(() {
-        commentList.add(comment);
-      });
+      commentList.insert(0, comment);
+      state.editController.add(TextEditingController()); 
+      // re-order editController
+      for (int i = 0; i < commentList.length; i++) {
+        state.editController[i].text = commentList[i].content;
+      }
+
+      state.render(() {});
+      
     } catch (e) {
       MyDialog.circularProgressStop(state.context);
       if (Constant.DEV) print('====== add comment error: $e');

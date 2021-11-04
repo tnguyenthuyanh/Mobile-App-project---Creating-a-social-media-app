@@ -264,8 +264,13 @@ class _Controller {
           ARGS.OnePhotoMemo: tempMemo,
           ARGS.commentList: commentList,
         });
+    if (state.widget.user.uid == tempMemo.uid) {
+      await FirestoreController.updateSeenEachComment(photoId: tempMemo.docId!);
+    }
+    tempMemo.new_comments = 0;
+    state.widget.photoMemo.assign(tempMemo);
+    state.render(() {});
   }
-
 
   void navigate2ProfileScreen() async {
     try {

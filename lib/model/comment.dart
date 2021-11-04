@@ -5,12 +5,14 @@ class Comment {
   static const PHOTO_ID = 'photoID';
   static const CONTENT = 'content';
   static const TIMESTAMP = 'timestamp';
+  static const SEEN = 'seen';
 
   String? docId; // Firestore auto generated doc Id
   late String commentedBy; // email 
   late String uid;
   late String photoId; 
   late String content;
+  late int seen;
   DateTime? timestamp;
 
   Comment({
@@ -20,6 +22,7 @@ class Comment {
     this.photoId = '',
     this.content = '',
     this.timestamp,
+    this.seen = 0,
   });
 
   Comment.clone(Comment p) {
@@ -29,6 +32,7 @@ class Comment {
     this.photoId = p.photoId;
     this.content = p.content;
     this.timestamp = p.timestamp;
+    this.seen = p.seen;
   }
 
   // // a.assign(b) =====> a = b
@@ -53,6 +57,7 @@ class Comment {
       COMMENTED_BY: this.commentedBy,
       PHOTO_ID: this.photoId,
       CONTENT: this.content,
+      SEEN: this.seen,
       TIMESTAMP: this.timestamp,
     };
   }
@@ -70,6 +75,7 @@ class Comment {
       commentedBy: doc[COMMENTED_BY] ??= 'N/A', // if null give a value as 'N/A'
       photoId: doc[PHOTO_ID],
       content: doc[CONTENT],
+      seen: doc[SEEN],
       timestamp: doc[TIMESTAMP] != null  
       ? DateTime.fromMillisecondsSinceEpoch(doc[TIMESTAMP].millisecondsSinceEpoch)
       : DateTime.now(),

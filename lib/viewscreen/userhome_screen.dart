@@ -146,7 +146,31 @@ class _UserHomeState extends State<UserHomeScreen> {
                         url: con.photoMemoList[index].photoURL,
                         context: context,
                       ),
-                      trailing: Icon(Icons.arrow_right),
+                      trailing: con.photoMemoList[index].new_comments == 0
+                          ? null
+                          : Container(
+                              height: 34,
+                              width: 34,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle, color: Colors.purple),
+                              child: Center(
+                                child: Wrap(
+                                  children: [
+                                    Icon(
+                                      Icons.comment,
+                                      size: 15,
+                                    ),
+                                    Text(
+                                      con.photoMemoList[index].new_comments
+                                          .toString(),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                       title: Text(con.photoMemoList[index].title),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,7 +378,7 @@ class _Controller {
     }
     bool isPhotoSaved = await FirestoreController.isPhotoSaved(
         photoMemo: photoMemoList[index], currentUser: state.widget.user);
-        
+
     List<Comment> commentList = await FirestoreController.getCommentList(
         photoId: photoMemoList[index].docId!);
 
