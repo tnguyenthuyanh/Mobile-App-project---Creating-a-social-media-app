@@ -328,6 +328,26 @@ class FirestoreController {
         .collection(Constant.PHOTOMEMO_COLLECTION)
         .doc(photoId)
         .update({PhotoMemo.NEW_COMMENTS: 0});
-
   }
+
+    static Future<void> deleteComment({
+    required String docId,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_COLLECTION)
+        .doc(docId)
+        .delete();
+  }
+
+    static Future<void> updateComment({
+    required String docId,
+    required Map<String, dynamic> updateInfo,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.COMMENT_COLLECTION)
+        .doc(docId)
+        .update(updateInfo);
+  }
+
+  
 }

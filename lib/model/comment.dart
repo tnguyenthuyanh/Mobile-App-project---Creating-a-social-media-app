@@ -35,21 +35,16 @@ class Comment {
     this.seen = p.seen;
   }
 
-  // // a.assign(b) =====> a = b
-  // void assign(PhotoMemo p) {
-  //   this.docId = p.docId;
-  //   this.uid = p.uid;
-  //   this.createdBy = p.createdBy;
-  //   this.title = p.title;
-  //   this.memo = p.memo;
-  //   this.photoFilename = p.photoFilename;
-  //   this.photoURL = p.photoURL;
-  //   this.timestamp = p.timestamp;
-  //   this.sharedWith.clear();
-  //   this.sharedWith.addAll(p.sharedWith);
-  //   this.imageLabels.clear();
-  //   this.imageLabels.addAll(p.imageLabels);
-  // }
+  // a.assign(b) =====> a = b
+  void assign(Comment p) {
+    this.docId = p.docId;
+    this.uid = p.uid;
+    this.commentedBy = p.commentedBy;
+    this.photoId = p.photoId;
+    this.content = p.content;
+    this.timestamp = p.timestamp;
+    this.seen = p.seen;
+  }
 
   Map<String, dynamic> toFirestoreDoc() {
     return {

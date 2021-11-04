@@ -269,7 +269,6 @@ class _Controller {
     }
     tempMemo.new_comments = 0;
     state.widget.photoMemo.assign(tempMemo);
-    state.render(() {});
   }
 
   void navigate2ProfileScreen() async {
