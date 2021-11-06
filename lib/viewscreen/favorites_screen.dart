@@ -97,50 +97,7 @@ class _Controller {
     photoMemoList = state.widget.photoMemoList;
   }
 
-  // void delete() async {
-  //   MyDialog.circularProgressStart(state.context);
-  //   delIndexes.sort(); // ascending order
-  //   for (int i = delIndexes.length - 1; i >= 0; i--) {
-  //     try {
-  //       PhotoMemo p = photoMemoList[delIndexes[i]];
-  //       await FirestoreController.deletePhotoMemo(photoMemo: p);
-  //       await CloudStorageController.deletePhotoFile(photoMemo: p);
-  //       state.render(() {
-  //         photoMemoList.removeAt(delIndexes[i]);
-  //       });
-  //     } catch (e) {
-  //       if (Constant.DEV) print('====== failed to delete Photomemo: $e');
-  //       MyDialog.showSnackBar(
-  //         context: state.context,
-  //         message: 'Failed to delete Photomemo: $e',
-  //       );
-  //       break; // quit further processing
-  //     }
-  //   }
-  //   MyDialog.circularProgressStop(state.context);
-  //   state.render(() => delIndexes.clear());
-  // }
-
-  // void cancelDelete() {
-  //   state.render(() {
-  //     delIndexes.clear();
-  //   });
-  // }
-
-  // void onLongPress(int index) {
-  //   state.render(() {
-  //     if (delIndexes.contains(index))
-  //       delIndexes.remove(index);
-  //     else
-  //       delIndexes.add(index);
-  //   });
-  // }
-
   void onTap(int index) async {
-    // if (delIndexes.isNotEmpty) {
-    //   onLongPress(index);
-    //   return;
-    // }
     bool isPhotoSaved = await FirestoreController.isPhotoSaved(
         photoMemo: photoMemoList[index], currentUser: state.widget.user);
 
@@ -151,18 +108,6 @@ class _Controller {
           ARGS.isPhotoSaved: isPhotoSaved,
         });
     Navigator.of(state.context).pop();
-    // // rerender home screen
-    // state.render(() {      
-    //   // reorder based on the updated timestamp
-    //   photoMemoList.sort((a, b) {
-    //     if (a.timestamp!.isBefore(b.timestamp!))
-    //       return 1; // descending order
-    //     else if (a.timestamp!.isAfter(b.timestamp!))
-    //       return -1;
-    //     else
-    //       return 0;
-    //   });
-    // });
   }
 
 }

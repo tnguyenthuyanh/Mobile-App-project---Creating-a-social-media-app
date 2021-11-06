@@ -393,13 +393,23 @@ class _Controller {
   void delete(int index) async {
     MyDialog.circularProgressStart(state.context);
 
-    await FirestoreController.deleteComment(docId: commentList[index].docId!);
-    commentList.removeAt(index);
-    state.editController.removeAt(index);
-    state.editEnabled.removeAt(index);
+    try {
+      await FirestoreController.deleteComment(docId: commentList[index].docId!);
+      commentList.removeAt(index);
+      state.editController.removeAt(index);
+      state.editEnabled.removeAt(index);
 
-    MyDialog.circularProgressStop(state.context);
-    state.render(() {});
+      MyDialog.circularProgressStop(state.context);
+      state.render(() {});
+
+    } catch (e) {
+      MyDialog.circularProgressStop(state.context);
+      if (Constant.DEV) print('====== delete comment error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Delete comment error: $e',
+      );
+    }
   }
 
   void cancel(int index) {

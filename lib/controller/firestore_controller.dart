@@ -288,14 +288,11 @@ class FirestoreController {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.COMMENT_COLLECTION)
         .where(Comment.PHOTO_ID, isEqualTo: photoId)
+        .where(Comment.SEEN, isEqualTo: 0)
         .orderBy(Comment.TIMESTAMP, descending: true)
         .get();
 
-    int count = 0;
-    for (int i = 0; i < querySnapshot.size; i++) {
-      if (querySnapshot.docs[i][Comment.SEEN] == 0) count++;
-    }
-    return count;
+    return querySnapshot.size;
   }
 
   static Future<void> updateNewComments({
@@ -314,11 +311,11 @@ class FirestoreController {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.COMMENT_COLLECTION)
         .where(Comment.PHOTO_ID, isEqualTo: photoId)
+        .where(Comment.SEEN, isEqualTo: 0)
         .orderBy(Comment.TIMESTAMP, descending: true)
         .get();
 
     for (int i = 0; i < querySnapshot.size; i++) {
-      if (querySnapshot.docs[i][Comment.SEEN] == 0)
         await FirebaseFirestore.instance
             .collection(Constant.COMMENT_COLLECTION)
             .doc(querySnapshot.docs[i].id)
@@ -330,7 +327,7 @@ class FirestoreController {
         .update({PhotoMemo.NEW_COMMENTS: 0});
   }
 
-    static Future<void> deleteComment({
+  static Future<void> deleteComment({
     required String docId,
   }) async {
     await FirebaseFirestore.instance
@@ -339,7 +336,7 @@ class FirestoreController {
         .delete();
   }
 
-    static Future<void> updateComment({
+  static Future<void> updateComment({
     required String docId,
     required Map<String, dynamic> updateInfo,
   }) async {
@@ -349,5 +346,38 @@ class FirestoreController {
         .update(updateInfo);
   }
 
-  
+  static Future<List<PhotoMemo>> sort({
+    required String uid,
+    required Sort option,
+  }) async {
+    QuerySnapshot querySnapshot;
+    if (option == Sort.NewestComments) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .where(PhotoMemo.UID, isEqualTo: uid)
+          .orderBy(PhotoMemo.NEW_COMMENTS, descending: true)
+          .get();
+    } else if (option == Sort.Title) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .where(PhotoMemo.UID, isEqualTo: uid)
+          .orderBy(PhotoMemo.TITLE, descending: true)
+          .get();
+    } else {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .where(PhotoMemo.UID, isEqualTo: uid)
+          .orderBy(PhotoMemo.TIMESTAMP, descending: true)
+          .get();
+    }
+    var results = <PhotoMemo>[];
+    querySnapshot.docs.forEach((doc) {
+      var p = PhotoMemo.fromFirestoreDoc(
+        doc: doc.data() as Map<String, dynamic>,
+        docId: doc.id,
+      );
+      if (p != null) results.add(p);
+    });
+    return results;
+  }
 }

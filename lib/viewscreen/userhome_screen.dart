@@ -37,6 +37,7 @@ class UserHomeScreen extends StatefulWidget {
 class _UserHomeState extends State<UserHomeScreen> {
   late _Controller con;
   GlobalKey<FormState> formKey = GlobalKey();
+  Sort sortValue = Sort.MostRecent;
 
   @override
   void initState() {
@@ -59,10 +60,11 @@ class _UserHomeState extends State<UserHomeScreen> {
                 ? Form(
                     key: formKey,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                       child: Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
+                        width: MediaQuery.of(context).size.width * 0.4,
                         child: TextFormField(
+                          style: TextStyle(fontSize: 12.0, height: 1.5),
                           decoration: InputDecoration(
                             hintText: 'Search (empty for all)',
                             fillColor: Theme.of(context).backgroundColor,
@@ -81,12 +83,51 @@ class _UserHomeState extends State<UserHomeScreen> {
             con.delIndexes.isEmpty
                 ? IconButton(
                     onPressed: con.search,
-                    icon: Icon(Icons.search),
+                    icon: Icon(
+                      Icons.search,
+                      size: 20,
+                    ),
                   )
                 : IconButton(
                     onPressed: con.delete,
                     icon: Icon(Icons.delete),
                   ),
+            con.delIndexes.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 4, 8),
+                    child: Container(
+                      width: 130,
+                      padding: const EdgeInsets.only(left: 7.0),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10.0)),
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 1,
+                        ),
+                        color: Colors.grey.withAlpha(100),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<Sort>(
+                          value: sortValue,
+                          onChanged: con.sort,
+                          items: [
+                            for (var c in Sort.values)
+                              DropdownMenuItem<Sort>(
+                                child: Text(
+                                  c.toString().split('.')[1],
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                  ),
+                                ),
+                                value: c,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : SizedBox(),
           ],
         ),
         drawer: Drawer(
@@ -94,7 +135,6 @@ class _UserHomeState extends State<UserHomeScreen> {
             children: [
               UserAccountsDrawerHeader(
                 accountName: Text('Hello!'),
-                // Text(widget.profile['name'])
                 accountEmail: Text(widget.email),
               ),
               ListTile(
@@ -424,5 +464,31 @@ class _Controller {
     }
     Navigator.of(state.context).pop(); // close the drawer
     Navigator.of(state.context).pop(); // pop from UserHome
+  }
+
+  Future<void> sort(Sort? value) async {
+    MyDialog.circularProgressStart(state.context);
+
+    try {
+      List<PhotoMemo> results = await FirestoreController.sort(
+        uid: state.widget.user.uid,
+        option: value!,
+      );
+
+      MyDialog.circularProgressStop(state.context);
+
+      state.render(() {
+        state.sortValue = value;
+        photoMemoList = results;
+      });
+      
+    } catch (e) {
+      MyDialog.circularProgressStop(state.context);
+      if (Constant.DEV) print('========= sort error: $e');
+      MyDialog.showSnackBar(
+        context: state.context,
+        message: 'Sort error: $e',
+      );
+    }
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lesson3/controller/firebaseauth_controller.dart';
-import 'package:lesson3/controller/firestore_controller.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
 

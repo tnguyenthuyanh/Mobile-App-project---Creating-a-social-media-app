@@ -19,3 +19,9 @@ enum ARGS {
   isPhotoSaved,
   commentList,
 }
+
+enum Sort {
+  Title,
+  NewestComments,
+  MostRecent,
+}
