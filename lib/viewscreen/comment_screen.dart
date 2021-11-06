@@ -274,8 +274,32 @@ class _CommentState extends State<CommentScreen> {
                                                     : SizedBox(),
                                                 Expanded(
                                                   child: InkWell(
-                                                    onTap: () =>
-                                                        con.delete(index),
+                                                    onTap: () => showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          AlertDialog(
+                                                        title: Text(
+                                                            'Confirmation'),
+                                                        content: Text(
+                                                            'Are you sure you want to delete?'),
+                                                        actions: [
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child:
+                                                                Text('Cancel'),
+                                                          ),
+                                                          ElevatedButton(
+                                                            onPressed: () => con
+                                                                .delete(index),
+                                                            child: Text('Yes'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
                                                     child: Container(
                                                       alignment:
                                                           Alignment.center,
@@ -400,8 +424,8 @@ class _Controller {
       state.editEnabled.removeAt(index);
 
       MyDialog.circularProgressStop(state.context);
+      Navigator.of(state.context).pop();
       state.render(() {});
-
     } catch (e) {
       MyDialog.circularProgressStop(state.context);
       if (Constant.DEV) print('====== delete comment error: $e');
