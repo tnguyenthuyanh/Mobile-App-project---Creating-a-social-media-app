@@ -364,8 +364,10 @@ class _Controller {
       }
 
       //update Firestore doc
-      if (tempMemo.title != state.widget.photoMemo.title)
+      if (tempMemo.title != state.widget.photoMemo.title) {
         updateInfo[PhotoMemo.TITLE] = tempMemo.title;
+        updateInfo[PhotoMemo.LOWERCASE_TITLE] = tempMemo.lowercase_title;
+      }
       if (tempMemo.memo != state.widget.photoMemo.memo)
         updateInfo[PhotoMemo.MEMO] = tempMemo.memo;
       if (!listEquals(tempMemo.sharedWith, state.widget.photoMemo.sharedWith))
@@ -399,7 +401,10 @@ class _Controller {
   }
 
   void saveTitle(String? value) {
-    if (value != null) tempMemo.title = value;
+    if (value != null) {
+      tempMemo.title = value;
+      tempMemo.lowercase_title = value.toLowerCase();
+    }
   }
 
   void saveMemo(String? value) {

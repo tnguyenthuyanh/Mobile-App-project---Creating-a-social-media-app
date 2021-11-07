@@ -161,7 +161,8 @@ class _Controller {
       );
 
       // get image labels by ML
-      List<String> recognitions = await GoogleMLController.getImageLabels(photo: state.photo!);
+      List<String> recognitions =
+          await GoogleMLController.getImageLabels(photo: state.photo!);
       tempMemo.imageLabels.addAll(recognitions);
 
       tempMemo.photoFilename = photoInfo[ARGS.Filename];
@@ -170,14 +171,14 @@ class _Controller {
       tempMemo.uid = state.widget.user.uid;
       tempMemo.timestamp = DateTime.now();
 
-      String docId = await FirestoreController.addPhotoMemo(photoMemo: tempMemo);
+      String docId =
+          await FirestoreController.addPhotoMemo(photoMemo: tempMemo);
       tempMemo.docId = docId;
       state.widget.photoMemoList.insert(0, tempMemo);
 
       MyDialog.circularProgressStop(state.context);
       // return to UserHome Screen
       Navigator.pop(state.context);
-
     } catch (e) {
       MyDialog.circularProgressStop(state.context);
 
@@ -208,7 +209,10 @@ class _Controller {
   }
 
   void saveTitle(String? value) {
-    if (value != null) tempMemo.title = value;
+    if (value != null) {
+      tempMemo.title = value;
+      tempMemo.lowercase_title = value.toLowerCase();
+    }
   }
 
   void saveMemo(String? value) {

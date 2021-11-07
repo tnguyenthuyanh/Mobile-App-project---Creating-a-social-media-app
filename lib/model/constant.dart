@@ -21,7 +21,8 @@ enum ARGS {
 }
 
 enum Sort {
-  Title,
-  NewestComments,
-  MostRecent,
+  Title_A_Z,
+  Title_Z_A,
+  Newest_Comments,
+  Most_Recent,
 }

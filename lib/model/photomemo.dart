@@ -7,6 +7,7 @@ class PhotoMemo {
   // keys for Firestore doc
   static const UID = 'uid';
   static const TITLE = 'title';
+  static const LOWERCASE_TITLE = 'lowercase_title';
   static const MEMO = 'memo';
   static const CREATED_BY = 'createdby';
   static const PHOTO_URL = 'photoURL';
@@ -20,6 +21,7 @@ class PhotoMemo {
   late String createdBy; // email 
   late String uid; 
   late String title;
+  late String lowercase_title;
   late String memo;
   late String photoFilename; // at Cloud Storage
   late String photoURL;
@@ -33,6 +35,7 @@ class PhotoMemo {
     this.uid = '',
     this.createdBy = '',
     this.title = '',
+    this.lowercase_title = '',
     this.memo = '',
     this.photoFilename = '',
     this.photoURL = '',
@@ -50,6 +53,7 @@ class PhotoMemo {
     this.uid = p.uid;
     this.createdBy = p.createdBy;
     this.title = p.title;
+    this.lowercase_title = p.lowercase_title;
     this.memo = p.memo;
     this.photoFilename = p.photoFilename;
     this.photoURL = p.photoURL;
@@ -65,6 +69,7 @@ class PhotoMemo {
     this.uid = p.uid;
     this.createdBy = p.createdBy;
     this.title = p.title;
+    this.lowercase_title = p.lowercase_title;
     this.memo = p.memo;
     this.photoFilename = p.photoFilename;
     this.photoURL = p.photoURL;
@@ -79,6 +84,7 @@ class PhotoMemo {
   Map<String, dynamic> toFirestoreDoc() {
     return {
       TITLE: this.title,
+      LOWERCASE_TITLE: this.lowercase_title,
       UID: this.uid,
       CREATED_BY: this.createdBy,
       MEMO: this.memo,
@@ -103,6 +109,7 @@ class PhotoMemo {
       uid: doc[UID],
       createdBy: doc[CREATED_BY] ??= 'N/A', // if null give a value as 'N/A'
       title: doc[TITLE] ??= 'N/A',
+      lowercase_title: doc[LOWERCASE_TITLE] ??= 'N/A',
       memo: doc[MEMO] ??= 'N/A',
       photoFilename: doc[PHOTO_FILENAME] ??= 'N/A',
       photoURL: doc[PHOTO_URL] ??= 'N/A',

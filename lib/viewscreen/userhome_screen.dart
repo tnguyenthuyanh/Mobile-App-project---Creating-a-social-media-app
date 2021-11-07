@@ -37,7 +37,7 @@ class UserHomeScreen extends StatefulWidget {
 class _UserHomeState extends State<UserHomeScreen> {
   late _Controller con;
   GlobalKey<FormState> formKey = GlobalKey();
-  Sort sortValue = Sort.MostRecent;
+  Sort sortValue = Sort.Most_Recent;
 
   @override
   void initState() {
@@ -115,7 +115,7 @@ class _UserHomeState extends State<UserHomeScreen> {
                             for (var c in Sort.values)
                               DropdownMenuItem<Sort>(
                                 child: Text(
-                                  c.toString().split('.')[1],
+                                  c.toString().split('.')[1].replaceFirst('_', ' '),
                                   style: TextStyle(
                                     fontSize: 11,
                                   ),

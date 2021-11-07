@@ -351,19 +351,26 @@ class FirestoreController {
     required Sort option,
   }) async {
     QuerySnapshot querySnapshot;
-    if (option == Sort.NewestComments) {
+    if (option == Sort.Newest_Comments) {
       querySnapshot = await FirebaseFirestore.instance
           .collection(Constant.PHOTOMEMO_COLLECTION)
           .where(PhotoMemo.UID, isEqualTo: uid)
           .orderBy(PhotoMemo.NEW_COMMENTS, descending: true)
           .get();
-    } else if (option == Sort.Title) {
+    } else if (option == Sort.Title_Z_A) {
       querySnapshot = await FirebaseFirestore.instance
           .collection(Constant.PHOTOMEMO_COLLECTION)
           .where(PhotoMemo.UID, isEqualTo: uid)
-          .orderBy(PhotoMemo.TITLE, descending: true)
+          .orderBy(PhotoMemo.LOWERCASE_TITLE, descending: true)
           .get();
-    } else {
+    } else if (option == Sort.Title_A_Z) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .where(PhotoMemo.UID, isEqualTo: uid)
+          .orderBy(PhotoMemo.LOWERCASE_TITLE)
+          .get();
+    }
+    else {
       querySnapshot = await FirebaseFirestore.instance
           .collection(Constant.PHOTOMEMO_COLLECTION)
           .where(PhotoMemo.UID, isEqualTo: uid)
