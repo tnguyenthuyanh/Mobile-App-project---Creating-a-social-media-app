@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/viewscreen/addnewphotomemo_screen.dart';
+import 'package:lesson3/viewscreen/adminhome_screen.dart';
 import 'package:lesson3/viewscreen/bio_screen.dart';
 import 'package:lesson3/viewscreen/changepassword_screen.dart';
 import 'package:lesson3/viewscreen/comment_screen.dart';
@@ -100,6 +101,17 @@ class Lesson3App extends StatelessWidget {
             var user = argument[ARGS.USER];
             var photoMemoList = argument[ARGS.PhotoMemoList];
             return UserHomeScreen(user: user, photoMemoList: photoMemoList);
+          }
+        },
+        AdminHomeScreen.routeName: (context) {
+          Object? args = ModalRoute.of(context)?.settings.arguments;
+          if (args == null) {
+            return InternalErrorScreen('args is null at AdminHomeScreen');
+          } else {
+            var argument = args as Map;
+            var user = argument[ARGS.USER];
+            var photoMemoList = argument[ARGS.PhotoMemoList];
+            return AdminHomeScreen(user: user, photoMemoList: photoMemoList);
           }
         },
         SharedWithScreen.routeName: (context) {

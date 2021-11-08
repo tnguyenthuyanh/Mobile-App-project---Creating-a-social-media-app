@@ -87,30 +87,25 @@ class _CommentState extends State<CommentScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: Align(
-              alignment: Alignment.topRight,
-              child: ElevatedButton(
-                onPressed: con.post,
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Colors.blue.withOpacity(0.3)),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.lightBlue),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: Colors.blue, width: 2.5),
-                    ),
-                  ),
-                ),
-                child: Text('Post'),
-              ),
-            ),
+                alignment: Alignment.topRight,
+                child: ElevatedButton(
+                    onPressed: con.post,
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.blue.withOpacity(0.3)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.lightBlue),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: Colors.blue, width: 2.5)),
+                        )),
+                    child: Text('Post'))),
           ),
           con.commentList.isEmpty
-              ? Text(
-                  'No Comment Yet',
-                  style: Theme.of(context).textTheme.headline6,
-                )
+              ? Text('No Comment Yet',
+                  style: Theme.of(context).textTheme.headline6)
               : Expanded(
                   child: Form(
                     key: formKey2,
@@ -126,16 +121,16 @@ class _CommentState extends State<CommentScreen> {
                                   child: TextFormField(
                                     controller: editController[index],
                                     decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: con.commentList[index].seen ==
-                                              0
-                                          ? Colors.purple[200]!.withOpacity(0.4)
-                                          : Colors.green[200]!.withOpacity(0.4),
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                      ),
-                                    ),
+                                        filled: true,
+                                        fillColor:
+                                            con.commentList[index].seen == 0
+                                                ? Colors.purple[200]!
+                                                    .withOpacity(0.4)
+                                                : Colors.green[200]!
+                                                    .withOpacity(0.4),
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0))),
                                     validator: Comment.validateComment,
                                     autocorrect: false,
                                     keyboardType: TextInputType.multiline,
@@ -151,15 +146,13 @@ class _CommentState extends State<CommentScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        '${con.commentList[index].commentedBy}',
-                                        style: TextStyle(
-                                            fontStyle: FontStyle.italic),
-                                      ),
+                                          '${con.commentList[index].commentedBy}',
+                                          style: TextStyle(
+                                              fontStyle: FontStyle.italic)),
                                       Text(
-                                        '${con.commentList[index].timestamp}',
-                                        style: TextStyle(
-                                            fontStyle: FontStyle.italic),
-                                      ),
+                                          '${con.commentList[index].timestamp}',
+                                          style: TextStyle(
+                                              fontStyle: FontStyle.italic)),
                                     ],
                                   ),
                                 ),
@@ -178,8 +171,7 @@ class _CommentState extends State<CommentScreen> {
                                             decoration: BoxDecoration(
                                               color: Colors.blue,
                                               borderRadius: BorderRadius.all(
-                                                Radius.circular(15),
-                                              ),
+                                                  Radius.circular(15)),
                                             ),
                                             child: Row(
                                               children: [
@@ -218,59 +210,52 @@ class _CommentState extends State<CommentScreen> {
                                                       )
                                                     : Expanded(
                                                         child: InkWell(
-                                                          onTap: () =>
-                                                              con.edit(index),
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Colors
-                                                                  .green[600],
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .only(
-                                                                bottomLeft: Radius
-                                                                    .circular(
-                                                                        12),
-                                                                topLeft: Radius
-                                                                    .circular(
-                                                                        12),
-                                                              ),
-                                                            ),
-                                                            child: Text(
-                                                              "Edit",
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
+                                                            onTap: () =>
+                                                                con.edit(index),
+                                                            child: Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                          .green[
+                                                                      600],
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .only(
+                                                                    bottomLeft:
+                                                                        Radius.circular(
+                                                                            12),
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                            12),
+                                                                  ),
+                                                                ),
+                                                                child: Text(
+                                                                    "Edit",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white))))),
                                                 editEnabled[index]
                                                     ? Expanded(
                                                         child: InkWell(
-                                                          onTap: () =>
-                                                              con.cancel(index),
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color:
-                                                                  Colors.grey,
-                                                            ),
-                                                            child: Text(
-                                                              "Cancel",
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
+                                                            onTap: () => con
+                                                                .cancel(index),
+                                                            child: Container(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                      color: Colors
+                                                                          .grey),
+                                                              child: Text(
+                                                                  "Cancel",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white)),
+                                                            )))
                                                     : SizedBox(),
                                                 Expanded(
                                                   child: InkWell(
@@ -325,6 +310,55 @@ class _CommentState extends State<CommentScreen> {
                                                   ),
                                                 ),
                                               ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : SizedBox(),
+                                widget.user.email == Constant.admin_email
+                                    ? Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            0, 2, 10, 0),
+                                        child: Align(
+                                          alignment: Alignment.topRight,
+                                          child: InkWell(
+                                            onTap: () => showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: Text('Confirmation'),
+                                                content: Text(
+                                                    'Are you sure you want to delete?'),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: Text('Cancel'),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () =>
+                                                        con.delete(index),
+                                                    child: Text('Yes'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            child: Container(
+                                              width: 80,
+                                              height: 30,
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.red[400],
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(12))),
+                                              child: Text(
+                                                "Delete",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),

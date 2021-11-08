@@ -6,6 +6,7 @@ class Constant {
   static const BIO_COLLECTION = 'bio_collection';
   static const FAVORITE_COLLECTION = 'favorite_collection';
   static const COMMENT_COLLECTION = 'comment_collection';
+  static const admin_email = 'admin@test.com';
 }
 
 enum ARGS {
@@ -24,5 +25,12 @@ enum Sort {
   Title_A_Z,
   Title_Z_A,
   Newest_Comments,
+  Most_Recent,
+}
+
+enum AdminSort {
+  Title_A_Z,
+  Title_Z_A,
+  Users,
   Most_Recent,
 }

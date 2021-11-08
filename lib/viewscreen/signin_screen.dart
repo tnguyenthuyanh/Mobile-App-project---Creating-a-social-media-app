@@ -4,6 +4,7 @@ import 'package:lesson3/controller/firebaseauth_controller.dart';
 import 'package:lesson3/controller/firestore_controller.dart';
 import 'package:lesson3/model/constant.dart';
 import 'package:lesson3/model/photomemo.dart';
+import 'package:lesson3/viewscreen/adminhome_screen.dart';
 import 'package:lesson3/viewscreen/signup_screen.dart';
 import 'package:lesson3/viewscreen/userhome_screen.dart';
 import 'package:lesson3/viewscreen/view/mydialog.dart';
@@ -138,6 +139,7 @@ class _Controller {
 
     User? user;
     MyDialog.circularProgressStart(state.context);
+
     try {
       if (email == null || password == null) {
         throw 'Email or Password is null';
@@ -145,22 +147,36 @@ class _Controller {
       user = await FirebaseAuthController.signIn(
           email: email!, password: password!);
 
-      List<PhotoMemo> photoMemoList =
-          await FirestoreController.getPhotoMemoList(uid: user!.uid);
-          
-      await FirestoreController.initBio(user: user);
-      Map profile = await FirestoreController.getBio(uid: user.uid);
-      MyDialog.circularProgressStop(state.context);
+      if (user!.email != Constant.admin_email) {
+        List<PhotoMemo> photoMemoList =
+            await FirestoreController.getPhotoMemoList(uid: user.uid);
 
-      Navigator.pushNamed(
-        state.context,
-        UserHomeScreen.routeName,
-        arguments: {
-          ARGS.USER: user,
-          ARGS.PhotoMemoList: photoMemoList,
-          ARGS.Profile: profile,
-        },
-      );
+        await FirestoreController.initBio(user: user);
+        MyDialog.circularProgressStop(state.context);
+
+        Navigator.pushNamed(
+          state.context,
+          UserHomeScreen.routeName,
+          arguments: {
+            ARGS.USER: user,
+            ARGS.PhotoMemoList: photoMemoList,
+          },
+        );
+      } else {
+        List<PhotoMemo> photoMemoList =
+            await FirestoreController.getAdminPhotoMemoList();
+
+        MyDialog.circularProgressStop(state.context);
+
+        Navigator.pushNamed(
+          state.context,
+          AdminHomeScreen.routeName,
+          arguments: {
+            ARGS.USER: user,
+            ARGS.PhotoMemoList: photoMemoList,
+          },
+        );
+      }
     } catch (e) {
       MyDialog.circularProgressStop(state.context);
 

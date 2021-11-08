@@ -129,6 +129,30 @@ class FirestoreController {
     return result;
   }
 
+  static Future<List<PhotoMemo>> getAdminPhotoMemoList() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.PHOTOMEMO_COLLECTION)
+        .orderBy(PhotoMemo.TIMESTAMP, descending: true)
+        .get();
+
+    var result = <PhotoMemo>[];
+
+    querySnapshot.docs.forEach((doc) {
+      if (doc.data() != null) {
+        var document = doc.data() as Map<String, dynamic>;
+        var p = PhotoMemo.fromFirestoreDoc(
+          doc: document,
+          docId: doc.id,
+        );
+        if (p != null) {
+          // filter invalid photomemo doc in Firestore
+          result.add(p);
+        }
+      }
+    });
+    return result;
+  }
+
   static Future<void> updatePhotoMemo({
     required String docId,
     required Map<String, dynamic> updateInfo,
@@ -374,6 +398,44 @@ class FirestoreController {
       querySnapshot = await FirebaseFirestore.instance
           .collection(Constant.PHOTOMEMO_COLLECTION)
           .where(PhotoMemo.UID, isEqualTo: uid)
+          .orderBy(PhotoMemo.TIMESTAMP, descending: true)
+          .get();
+    }
+    var results = <PhotoMemo>[];
+    querySnapshot.docs.forEach((doc) {
+      var p = PhotoMemo.fromFirestoreDoc(
+        doc: doc.data() as Map<String, dynamic>,
+        docId: doc.id,
+      );
+      if (p != null) results.add(p);
+    });
+    return results;
+  }
+
+
+  static Future<List<PhotoMemo>> adminSort({
+    required AdminSort option,
+  }) async {
+    QuerySnapshot querySnapshot;
+    if (option == AdminSort.Users) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .orderBy(PhotoMemo.CREATED_BY)
+          .get();
+    } else if (option == AdminSort.Title_Z_A) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .orderBy(PhotoMemo.LOWERCASE_TITLE, descending: true)
+          .get();
+    } else if (option == AdminSort.Title_A_Z) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .orderBy(PhotoMemo.LOWERCASE_TITLE)
+          .get();
+    }
+    else {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
           .orderBy(PhotoMemo.TIMESTAMP, descending: true)
           .get();
     }
