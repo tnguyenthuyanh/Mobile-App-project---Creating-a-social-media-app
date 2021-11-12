@@ -62,7 +62,7 @@ class _AdminHomeState extends State<AdminHomeScreen> {
                         child: TextFormField(
                           style: TextStyle(fontSize: 12.0, height: 1.5),
                           decoration: InputDecoration(
-                            hintText: 'Search (empty for all)',
+                            hintText: 'Search users',
                             fillColor: Theme.of(context).backgroundColor,
                             filled: true,
                           ),
@@ -135,11 +135,6 @@ class _AdminHomeState extends State<AdminHomeScreen> {
               UserAccountsDrawerHeader(
                 accountName: Text('Hello!'),
                 accountEmail: Text(widget.email),
-              ),
-              ListTile(
-                leading: Icon(Icons.manage_accounts),
-                title: Text('Users'),
-                onTap: con.toggleUser,
               ),
               ListTile(
                 leading: Icon(Icons.settings),
@@ -233,8 +228,6 @@ class _Controller {
     photoMemoList = state.widget.photoMemoList;
   }
 
-  void toggleUser() async {}
-
   void changePassword() async {
     try {
       await Navigator.pushNamed(
@@ -305,7 +298,7 @@ class _Controller {
     if (searchKeyString != null) {
       var tokens = searchKeyString!.split(RegExp('(,| )+')).toList();
       for (var t in tokens) {
-        if (t.trim().isNotEmpty) keys.add(t.trim().toLowerCase());
+        if (t.trim().isNotEmpty) keys.add(t.trim());
       }
     }
 
@@ -315,11 +308,9 @@ class _Controller {
       late List<PhotoMemo> results;
       if (keys.isEmpty) {
         // read all photomemos
-        results = await FirestoreController.getPhotoMemoList(
-            uid: state.widget.user.uid);
+        results = await FirestoreController.getAdminPhotoMemoList();
       } else {
-        results = await FirestoreController.searchImages(
-          createdBy: state.widget.email,
+        results = await FirestoreController.adminSearchUsers(
           searchLabels: keys,
         );
       }

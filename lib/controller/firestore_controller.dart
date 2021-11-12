@@ -340,10 +340,10 @@ class FirestoreController {
         .get();
 
     for (int i = 0; i < querySnapshot.size; i++) {
-        await FirebaseFirestore.instance
-            .collection(Constant.COMMENT_COLLECTION)
-            .doc(querySnapshot.docs[i].id)
-            .update({Comment.SEEN: 1});
+      await FirebaseFirestore.instance
+          .collection(Constant.COMMENT_COLLECTION)
+          .doc(querySnapshot.docs[i].id)
+          .update({Comment.SEEN: 1});
     }
     await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
@@ -393,8 +393,7 @@ class FirestoreController {
           .where(PhotoMemo.UID, isEqualTo: uid)
           .orderBy(PhotoMemo.LOWERCASE_TITLE)
           .get();
-    }
-    else {
+    } else {
       querySnapshot = await FirebaseFirestore.instance
           .collection(Constant.PHOTOMEMO_COLLECTION)
           .where(PhotoMemo.UID, isEqualTo: uid)
@@ -411,7 +410,6 @@ class FirestoreController {
     });
     return results;
   }
-
 
   static Future<List<PhotoMemo>> adminSort({
     required AdminSort option,
@@ -432,8 +430,7 @@ class FirestoreController {
           .collection(Constant.PHOTOMEMO_COLLECTION)
           .orderBy(PhotoMemo.LOWERCASE_TITLE)
           .get();
-    }
-    else {
+    } else {
       querySnapshot = await FirebaseFirestore.instance
           .collection(Constant.PHOTOMEMO_COLLECTION)
           .orderBy(PhotoMemo.TIMESTAMP, descending: true)
@@ -447,6 +444,30 @@ class FirestoreController {
       );
       if (p != null) results.add(p);
     });
+    return results;
+  }
+
+  static Future<List<PhotoMemo>> adminSearchUsers({
+    required List<String> searchLabels, // OR search
+  }) async {
+    var results = <PhotoMemo>[];
+    searchLabels.sort();
+    
+    for (int i = 0; i < searchLabels.length; i++) {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.PHOTOMEMO_COLLECTION)
+          .where(PhotoMemo.CREATED_BY, isEqualTo: searchLabels[i])
+          .orderBy(PhotoMemo.TIMESTAMP, descending: true)
+          .get();
+
+      querySnapshot.docs.forEach((doc) {
+        var p = PhotoMemo.fromFirestoreDoc(
+          doc: doc.data() as Map<String, dynamic>,
+          docId: doc.id,
+        );
+        if (p != null) results.add(p);
+      });
+    }
     return results;
   }
 }

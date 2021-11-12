@@ -315,7 +315,7 @@ class _CommentState extends State<CommentScreen> {
                                         ),
                                       )
                                     : SizedBox(),
-                                widget.user.email == Constant.admin_email
+                                widget.user.email == Constant.admin_email && con.commentList[index].commentedBy != Constant.admin_email
                                     ? Padding(
                                         padding: const EdgeInsets.fromLTRB(
                                             0, 2, 10, 0),
