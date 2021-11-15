@@ -166,31 +166,7 @@ class _AdminHomeState extends State<AdminHomeScreen> {
                         url: con.photoMemoList[index].photoURL,
                         context: context,
                       ),
-                      trailing: con.photoMemoList[index].new_comments == 0
-                          ? null
-                          : Container(
-                              height: 34,
-                              width: 34,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle, color: Colors.purple),
-                              child: Center(
-                                child: Wrap(
-                                  children: [
-                                    Icon(
-                                      Icons.comment,
-                                      size: 15,
-                                    ),
-                                    Text(
-                                      con.photoMemoList[index].new_comments
-                                          .toString(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                      trailing: Icon(Icons.arrow_right),
                       title: Text(con.photoMemoList[index].title),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
