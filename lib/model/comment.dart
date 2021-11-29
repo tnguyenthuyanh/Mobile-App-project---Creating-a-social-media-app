@@ -6,10 +6,12 @@ class Comment {
   static const CONTENT = 'content';
   static const TIMESTAMP = 'timestamp';
   static const SEEN = 'seen';
+  static const PHOTO_POSTED_UID = 'photoPostedUid';
 
   String? docId; // Firestore auto generated doc Id
   late String commentedBy; // email 
   late String uid;
+  late String photoPostedUid;
   late String photoId; 
   late String content;
   late int seen;
@@ -18,6 +20,7 @@ class Comment {
   Comment({
     this.docId,
     this.uid = '',
+    this.photoPostedUid = '',
     this.commentedBy = '',
     this.photoId = '',
     this.content = '',
@@ -28,6 +31,7 @@ class Comment {
   Comment.clone(Comment p) {
     this.docId = p.docId;
     this.uid = p.uid;
+    this.photoPostedUid = p.photoPostedUid;
     this.commentedBy = p.commentedBy;
     this.photoId = p.photoId;
     this.content = p.content;
@@ -39,6 +43,7 @@ class Comment {
   void assign(Comment p) {
     this.docId = p.docId;
     this.uid = p.uid;
+    this.photoPostedUid = p.photoPostedUid;
     this.commentedBy = p.commentedBy;
     this.photoId = p.photoId;
     this.content = p.content;
@@ -49,6 +54,7 @@ class Comment {
   Map<String, dynamic> toFirestoreDoc() {
     return {
       UID: this.uid,
+      PHOTO_POSTED_UID: this.photoPostedUid,
       COMMENTED_BY: this.commentedBy,
       PHOTO_ID: this.photoId,
       CONTENT: this.content,
@@ -67,6 +73,7 @@ class Comment {
     return Comment(
       docId: docId,
       uid: doc[UID],
+      photoPostedUid: doc[PHOTO_POSTED_UID],
       commentedBy: doc[COMMENTED_BY] ??= 'N/A', // if null give a value as 'N/A'
       photoId: doc[PHOTO_ID],
       content: doc[CONTENT],

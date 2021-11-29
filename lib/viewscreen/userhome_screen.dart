@@ -335,7 +335,7 @@ class _Controller {
     for (int i = delIndexes.length - 1; i >= 0; i--) {
       try {
         PhotoMemo p = photoMemoList[delIndexes[i]];
-        await FirestoreController.deletePhotoMemo(photoMemo: p);
+        await FirestoreController.deletePhotoMemo(photoMemo: p, user: state.widget.user);
         await CloudStorageController.deletePhotoFile(photoMemo: p);
         state.render(() {
           photoMemoList.removeAt(delIndexes[i]);

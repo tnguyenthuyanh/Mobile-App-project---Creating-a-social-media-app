@@ -187,11 +187,33 @@ class FirestoreController {
 
   static Future<void> deletePhotoMemo({
     required PhotoMemo photoMemo,
+    required User user,
   }) async {
     await FirebaseFirestore.instance
         .collection(Constant.PHOTOMEMO_COLLECTION)
         .doc(photoMemo.docId)
         .delete();
+
+    QuerySnapshot querySnapshot;
+    if (user.email == Constant.admin_email) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.FAVORITE_COLLECTION)
+          .where('docId', isEqualTo: photoMemo.docId)
+          .get();
+    } else {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(Constant.FAVORITE_COLLECTION)
+          .where('docId', isEqualTo: photoMemo.docId)
+          .where('savedBy', isEqualTo: user.uid)
+          .get();
+    }
+
+    for (int i = 0; i < querySnapshot.size; i++) {
+      await FirebaseFirestore.instance
+          .collection(Constant.FAVORITE_COLLECTION)
+          .doc(querySnapshot.docs[i].id)
+          .delete();
+    }
   }
 
   static Future<List<PhotoMemo>> getPhotoMemoListSharedWith({
@@ -452,7 +474,7 @@ class FirestoreController {
   }) async {
     var results = <PhotoMemo>[];
     searchLabels.sort();
-    
+
     for (int i = 0; i < searchLabels.length; i++) {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection(Constant.PHOTOMEMO_COLLECTION)

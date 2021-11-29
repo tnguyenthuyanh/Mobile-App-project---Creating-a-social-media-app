@@ -123,7 +123,7 @@ class _CommentState extends State<CommentScreen> {
                                     decoration: InputDecoration(
                                         filled: true,
                                         fillColor:
-                                            con.commentList[index].seen == 0
+                                            con.commentList[index].seen == 0 && widget.user.uid == widget.photoMemo.uid
                                                 ? Colors.purple[200]!
                                                     .withOpacity(0.4)
                                                 : Colors.green[200]!
@@ -493,6 +493,7 @@ class _Controller {
     try {
       comment.commentedBy = state.widget.user.email!;
       comment.uid = state.widget.user.uid;
+      comment.photoPostedUid = photoMemo.uid;
       comment.photoId = photoMemo.docId!;
       comment.timestamp = DateTime.now();
       if (photoMemo.uid == state.widget.user.uid)
@@ -531,7 +532,4 @@ class _Controller {
     }
   }
 
-  // void saveUpdatedComment(String? value) {
-
-  // }
 }
