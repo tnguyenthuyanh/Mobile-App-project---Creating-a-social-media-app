@@ -1,6 +1,8 @@
-# lesson3
+# Mobile App Project
 
-A new Flutter project.
+A Flutter project.
+
+An android application that works like a social media platform. The basic functions include posting photos, comments, checking other users' information, etc. The users' information and other contents are stored in Firestore database. 
 
 ## Getting Started
 
